@@ -790,10 +790,12 @@
         </div>
       </div>  
       <ul class="todo-list">
-        <li v-for="(todo, index) in todos" :key="index" 
+        <li v-for="(todo, index) in todos" :key="todo.id" 
             :class="{ important: todo.important, completed: todo.completed, selected: selectedTodos.includes(index) }"
             @click="toggleSelect(index, $event)">
-          <span>{{ todo.text }}</span>
+          <!-- 拖曳把手，點擊時不觸發選取 -->
+          <i class="fa fa-bars handle" @click.stop style="cursor: move; margin-right: 12px; color: var(--text-secondary);"></i>
+          <span style="flex: 1;">{{ todo.text }}</span>
         </li>
       </ul>
       <div v-if="showEditPopup" class="edit-popup">
@@ -1257,6 +1259,7 @@
         addTodo() {
           if (this.newTodo.trim()) {
             this.todos.push({
+              id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
               text: this.newTodo.trim(), 
               completed: false, 
               important: false
@@ -1595,6 +1598,7 @@
           if (this.selectedText) {
             // 直接將選取文字推入待辦陣列並保存，避免直接操作 DOM 破壞 Vue 響應式綁定
             this.todos.push({
+              id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
               text: this.selectedText.trim(),
               completed: false,
               important: false
@@ -1700,6 +1704,7 @@
           if (el && !this.sortableInstance) {
             this.sortableInstance = Sortable.create(el, {
               animation: 150,
+              handle: '.handle', // 限制只有按住 handle 圖標時才能拖曳，避免干擾點擊選取
               ghostClass: 'sortable-ghost',
               onEnd: (evt) => {
                 const oldIndex = evt.oldIndex;
@@ -1709,6 +1714,23 @@
                   const [removed] = this.todos.splice(oldIndex, 1);
                   this.todos.splice(newIndex, 0, removed);
                   this.saveTodos();
+
+                  // 修正 selectedTodos 中的索引對照，防止拖拉後選中的項目錯位
+                  const newSelected = [];
+                  this.selectedTodos.forEach(selectedIdx => {
+                    if (selectedIdx === oldIndex) {
+                      newSelected.push(newIndex);
+                    } else {
+                      let idx = selectedIdx;
+                      if (oldIndex < selectedIdx && newIndex >= selectedIdx) {
+                        idx--;
+                      } else if (oldIndex > selectedIdx && newIndex <= selectedIdx) {
+                        idx++;
+                      }
+                      newSelected.push(idx);
+                    }
+                  });
+                  this.selectedTodos = newSelected;
                 }
               }
             });
@@ -1754,6 +1776,18 @@
           navigator.serviceWorker.register('./sw.js')
             .then((reg) => console.log('Service Worker 註冊成功，Scope: ', reg.scope))
             .catch((err) => console.error('Service Worker 註冊失敗: ', err));
+        }
+
+        // 為舊有的待辦事項初始化唯一的 id 屬性，防止 DOM 重排時與 Vue 渲染衝突
+        let updated = false;
+        this.todos.forEach(todo => {
+          if (!todo.id) {
+            todo.id = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            updated = true;
+          }
+        });
+        if (updated) {
+          this.saveTodos();
         }
 
         this.fetchExchangeRates();
