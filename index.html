@@ -714,13 +714,13 @@
         margin: 5px auto 15px auto;
       }
       .tabs button {
-        justify-content: flex-start; /* 確保按鈕靠左對齊 */
+        justify-content: flex-start;
       }
+    }
       
-      .dropbtn {
-        padding: 8px; /* 稍微減小按鈕的內邊距 */
-        font-size: 14px; /* 稍微減小字體大小 */
-      }
+    /* 顯示控制樣式 */
+    .show {
+      display: block !important;
     }
   </style>
 </head>
@@ -798,7 +798,7 @@
           <span style="flex: 1;">{{ todo.text }}</span>
         </li>
       </ul>
-      <div v-if="showEditPopup" class="edit-popup">
+      <div v-if="showEditPopup" class="edit-popup show">
         <div class="edit-popup-content">
           <textarea v-model="editingText" rows="5"></textarea>
           <div class="edit-popup-buttons">
@@ -903,11 +903,15 @@
     </div>
     
     <!-- 使用說明彈出窗口 -->
-    <div v-if="showInstructionsPopup" class="instructions-popup">
+    <div v-if="showInstructionsPopup" class="instructions-popup show">
       <div class="popup-content">
         <button class='w3-right' @click="hideInstructions"><i class="fa fa-times" aria-hidden="true"></i></button>        
         <h2>使用說明</h2>
-        <img src="./images/QR4TTools.png" style="width: 100%; max-width: 300px; display: block; margin: 10px auto; border-radius: 8px;">
+        <div style="text-align: center; margin: 15px 0; background-color: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://famidoc.github.io/travel-tools/" style="width: 160px; height: 160px; border: 4px solid white; box-shadow: var(--shadow-md); border-radius: 8px;" alt="Travel Tools App QR Code">
+          <p style="font-size: 13px; color: var(--text-secondary); margin-top: 8px; font-weight: bold; margin-bottom: 0;">手機掃描上方 QR Code 開啟/安裝此 PWA 工具箱</p>
+        </div>
+        <img src="./images/QR4TTools.png" style="width: 100%; max-width: 300px; display: block; margin: 10px auto; border-radius: 8px;" alt="手冊 QR Code">
         <h3>計算器</h3>
         <ul>
           <li>基本運算：直接輸入數字和運算符，然後按 = 計算結果。</li>
@@ -1701,7 +1705,16 @@
         },
         initSortable() {
           const el = document.querySelector('.todo-list');
-          if (el && !this.sortableInstance) {
+          if (el) {
+            // 先銷毀舊的實例以釋放舊 DOM 節點的事件監聽，解決 v-if 分頁切換重建 DOM 後拖曳失效的問題
+            if (this.sortableInstance) {
+              try {
+                this.sortableInstance.destroy();
+              } catch (e) {
+                console.error('銷毀 Sortable 舊實例失敗:', e);
+              }
+              this.sortableInstance = null;
+            }
             this.sortableInstance = Sortable.create(el, {
               animation: 150,
               handle: '.handle', // 限制只有按住 handle 圖標時才能拖曳，避免干擾點擊選取
@@ -1814,7 +1827,7 @@
     app.mount('#app')
   </script>
   <footer class='w3-container-fluid w3-border-top w3-center w3-text-white'>
-    Vibe Coded by: <font color='red'><i>Famidoc Chang</i></font>
+    @2026 by Famidoc Chang & Antigravity 2.0
     <a href="https://www.facebook.com/profile.php?id=100095479744046" target="_blank" style="color:#fff"><i class='fa fa-facebook-square w3-xlarge'></i></a>
     <a href='mailto:famidoctor@gmail.com'><i class='fa fa-envelope w3-xlarge'></i></a>
   </footer>
