@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#ffeb3b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Travel Tools - 旅遊工具箱</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    /* 全局變數與基礎樣式 */
+    :root {
+      --primary-color: #3b82f6;
+      --primary-hover: #2563eb;
+      --accent-color: #f59e0b;
+      --accent-hover: #d97706;
+      --bg-color: #f8fafc;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --border-color: #e2e8f0;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft JhengHei", sans-serif;
+      color: var(--text-primary);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #app {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 800px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+
+    /* 頂部 Tab 導覽列 */
+    .tabs {
+      display: flex;
+      justify-content: space-between;
+      margin: 10px auto 20px auto;
+      width: 95%;
+      max-width: 600px;
+      background-color: #e2e8f0;
+      padding: 5px;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+    }
+  
+    .tabs button {
+      flex: 1;
+      background-color: transparent;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      padding: 10px 5px;
+      transition: all 0.2s ease;
+      font-size: 20px;
+      color: var(--text-secondary);
+      border-radius: var(--radius-sm);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .tabs button:hover {
+      color: var(--text-primary);
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .tabs button.active {
+      background-color: white;
+      color: var(--primary-color);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* 功能模組統一卡片樣式 */
+    .calculator,
+    .exchange,
+    .timezone,
+    .todo,
+    .translate,
+    .itinerary,
+    .data-management {
+      width: 95%;
+      max-width: 600px;
+      margin: 0 auto 20px auto;
+      padding: 20px;
+      background-color: var(--card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border-color);
+      box-sizing: border-box;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    /* 標題與排版 */
+    h4.w3-center {
+      margin-top: 5px;
+      margin-bottom: 20px;
+      color: var(--text-primary);
+      letter-spacing: 2px;
+      font-size: 1.15rem;
+    }
+
+    /* 計算機樣式 - 升級為現代酷炫暗色調 */
+    .calculator {
+      background-color: #0f172a;
+      border-color: #1e293b;
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .calculator h4 {
+      color: #f8fafc !important;
+    }
+
+    .calculator input {
+      width: 100%;
+      margin-bottom: 15px;
+      padding: 15px;
+      font-size: 28px;
+      border: none;
+      border-radius: var(--radius-md);
+      background-color: #1e293b;
+      color: #f8fafc;
+      text-align: right;
+      box-shadow: none;
+      box-sizing: border-box;
+    }
+
+    .calculator input.result {
+      color: #38bdf8;
+      font-weight: bold;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;    
+    }
+
+    .calculator button {
+      padding: 14px;
+      margin: 0;
+      border: none;
+      border-radius: var(--radius-md);
+      background: #334155;
+      color: #f8fafc;
+      font-size: 20px;      
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: none;
+    }
+
+    .calculator button:hover {
+      background: #475569;
+    }
+
+    .calculator button:active {
+      transform: scale(0.95);
+    }
+
+    /* 計算機特殊功能鍵 */
+    .calculator button:nth-child(4n),
+    .calculator button:nth-last-child(1) {
+      background: var(--primary-color);
+    }
+    .calculator button:nth-child(4n):hover,
+    .calculator button:nth-last-child(1):hover {
+      background: var(--primary-hover);
+    }
+
+    .calculator button:nth-last-child(2),
+    .calculator button:nth-last-child(3),
+    .calculator button:nth-last-child(4) {
+      background: #ef4444;
+    }
+    .calculator button:nth-last-child(2):hover,
+    .calculator button:nth-last-child(3):hover,
+    .calculator button:nth-last-child(4):hover {
+      background: #dc2626;
+    }
+
+    /* 行程資料樣式 */
+    .itinerary {
+      display: flex;
+      flex-direction: column;
+      height: 70vh;
+      min-height: 450px;
+    }
+
+    .itinerary-actions {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      position: sticky;
+      top: 0;
+      background-color: var(--card-bg);
+      z-index: 10;
+      padding: 4px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .itinerary-actions button {
+      background-color: #f1f5f9;
+      border: 1px solid var(--border-color);
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      color: var(--text-primary);
+      transition: all 0.2s;
+      font-size: 13px;
+    }
+
+    .itinerary-actions button:hover {
+      background-color: #e2e8f0;
+    }
+
+    .itinerary-actions button.active {
+      background-color: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    .itinerary-textarea {
+      flex: 1;
+      width: 100%;
+      padding: 15px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-y: auto;
+      background-color: white;
+      outline: none;
+      box-sizing: border-box;
+    }
+
+    .itinerary-textarea:empty:before {
+      content: attr(placeholder);
+      color: var(--text-secondary);
+      opacity: 0.7;
+    }
+
+    .highlight {
+      background-color: #fef08a;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+
+    .bold {
+      font-weight: bold;
+    }
+
+    .red {
+      color: #ef4444;
+    }
+
+    .blue {
+      color: #3b82f6;
+    }
+
+    /* 幣值兌換、時區、翻譯統一輸入控制項樣式 */
+    select, input[type="number"], textarea {
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 15px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      background-color: white;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-sizing: border-box;
+      color: var(--text-primary);
+    }
+
+    select:focus, input[type="number"]:focus, textarea:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+
+    .exchange-inputs, .timezone-inputs, .translate-inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    .exchange button, .translate-btn, .update-rates-btn {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .exchange button:hover, .translate-btn:hover, .update-rates-btn:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .exchange button:active, .translate-btn:active, .update-rates-btn:active {
+      transform: scale(0.98);
+    }
+
+    .update-rates-btn {
+      background-color: #10b981;
+      margin-bottom: 15px;
+    }
+
+    .update-rates-btn:hover {
+      background-color: #059669;
+    }
+
+    .update-rates-btn:disabled {
+      background-color: #cbd5e1;
+      cursor: not-allowed;
+    }
+
+    .exchange .result, .timezone .result, .translate .result {
+      margin-top: 15px;
+      padding: 12px;
+      background-color: #f1f5f9;
+      border-radius: var(--radius-md);
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--text-primary);
+      border: 1px dashed var(--border-color);
+    }
+
+    .last-updated {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    /* 時區換算額外樣式 */
+    .current-time {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 5px;
+      text-align: center;
+      color: var(--primary-color);
+    }
+
+    /* 待辦事項樣式 */
+    .todo-input {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+  
+    .todo-input input {
+      flex-grow: 1;
+      padding: 10px 14px;
+      font-size: 15px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      outline: none;
+    }
+  
+    .todo-input button {
+      padding: 10px 18px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .todo-input button:hover {
+      background-color: var(--primary-hover);
+    }
+  
+    .todo-list {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+  
+    .todo-list li {
+      padding: 12px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      background-color: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+
+    .todo-list li:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+      background-color: #fafbfc;
+    }
+ 
+    .todo-list li.important {
+      border-left: 5px solid var(--accent-color);
+    }
+
+    .todo-list li.completed span {
+      text-decoration: line-through;
+      color: var(--text-secondary);
+      opacity: 0.7;
+    }
+  
+    .todo-list li.selected {
+      background-color: #eff6ff;
+      border-color: #bfdbfe;
+    }
+
+    .todo-operations {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+
+    .todo-operations button, .todo-global-actions button {
+      padding: 8px 12px;
+      background-color: #f1f5f9;
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 13px;
+    }
+
+    .todo-operations button:hover, .todo-global-actions button:hover {
+      background-color: #e2e8f0;
+    }
+
+    .todo-operations button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .danger-button {
+      background-color: #fee2e2 !important;
+      color: #ef4444 !important;
+      border-color: #fca5a5 !important;
+    }
+
+    .danger-button:hover {
+      background-color: #fecaca !important;
+    }
+
+    /* Dropdown 下拉選單樣式修正 */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropbtn {
+      background-color: #f1f5f9;
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      padding: 8px 12px;
+      font-size: 13px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+    }
+    
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      background-color: white;
+      min-width: 160px;
+      box-shadow: var(--shadow-lg);
+      z-index: 100;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+    }
+
+    .dropdown-content a {
+      color: var(--text-primary);
+      padding: 10px 14px;
+      text-decoration: none;
+      display: block;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background-color 0.2s;
+    }
+    
+    .dropdown-content a:hover {
+      background-color: #f1f5f9;
+    }
+
+    .dropdown-content a.disabled {
+      color: var(--text-secondary);
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    /* 翻譯模組專屬樣式 */
+    .translate-inputs select {
+      flex: 1;
+    }
+
+    .swap-btn {
+      padding: 10px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 44px;
+      height: 44px;
+      margin: 0 auto;
+      transition: background-color 0.2s;
+    }
+
+    .swap-btn:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .translate-textarea {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    .translate-textarea textarea {
+      padding-right: 40px;
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .speak-btn {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 18px;
+      padding: 4px;
+      transition: color 0.2s;
+    }
+
+    .speak-btn:hover {
+      color: var(--primary-color);
+    }
+
+    /* 彈出視窗與對話框 */
+    .popup, .instructions-popup, .edit-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s, visibility 0.25s;
+    }
+
+    .popup.show, .instructions-popup.show, .edit-popup.show, .popup-content.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .popup-content, .edit-popup-content {
+      background-color: white;
+      padding: 24px;
+      border-radius: var(--radius-lg);
+      max-width: 90%;
+      width: 500px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border-color);
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    .popup-content h2, .popup-content h3 {
+      color: var(--text-primary);
+      margin-top: 0;
+    }
+
+    .popup-content ul {
+      padding-left: 20px;
+      line-height: 1.6;
+    }
+
+    .close-btn {
+      padding: 8px 16px;
+      background-color: var(--primary-color);
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      color: white;
+      font-weight: bold;
+      transition: background-color 0.2s;
+    }
+
+    .close-btn:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .edit-popup-buttons {
+      margin-top: 15px;
+      text-align: right;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .edit-popup-buttons button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .edit-popup-buttons button:first-child {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    .edit-popup-buttons button:first-child:hover {
+      background-color: var(--primary-hover);
+    }
+    .edit-popup-buttons button:last-child {
+      background-color: #e2e8f0;
+      color: var(--text-primary);
+    }
+
+    /* 頁尾樣式 */
+    footer {
+      margin-top: auto;
+      padding: 15px 10px;
+      background-color: #0f172a;
+      color: #94a3b8;
+      text-align: center;
+      font-size: 13px;
+      border-top: 1px solid #1e293b;
+    }
+
+    footer a {
+      color: #f8fafc;
+      margin-left: 10px;
+      transition: color 0.2s;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      color: #38bdf8;
+    }
+
+    /* 手機與窄螢幕 (RWD) 額外優化 */
+    @media (max-width: 600px) {
+      .tabs {
+        margin: 5px auto 15px auto;
+      }
+      .tabs button {
+        justify-content: flex-start; /* 確保按鈕靠左對齊 */
+      }
+      
+      .dropbtn {
+        padding: 8px; /* 稍微減小按鈕的內邊距 */
+        font-size: 14px; /* 稍微減小字體大小 */
+      }
+    }
+  </style>
+</head>
+<body>  
+  <div id="app">
+    <div class="tabs">
+      <button @click="activeTab = 'itinerary'" :class="{ active: activeTab === 'itinerary' }"><i class="fa fa-map" aria-hidden="true"></i></button>
+      <button @click="activeTab = 'todo'" :class="{ active: activeTab === 'todo' }"><i class="fa fa-tasks" aria-hidden="true"></i></button>
+      <button @click="activeTab = 'calculator'" :class="{ active: activeTab === 'calculator' }"><i class="fa fa-calculator" aria-hidden="true"></i></button>
+      <button @click="activeTab = 'exchange'" :class="{ active: activeTab === 'exchange' }"><i class="fa fa-exchange" aria-hidden="true"></i></button>
+      <button @click="activeTab = 'timezone'" :class="{ active: activeTab === 'timezone' }"><i class="fa fa-clock-o" aria-hidden="true"></i></button>
+      <button @click="activeTab = 'translate'" :class="{ active: activeTab === 'translate' }"><i class="fa fa-language" aria-hidden="true"></i></button>
+      <button @click="activeTab = 'data'" :class="{ active: activeTab === 'data' }" title="資料管理"><i class="fa fa-cog" aria-hidden="true"></i></button>
+      <button @click="showInstructions" title="使用說明">
+        <i class="fa fa-question-circle" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div v-if="activeTab === 'itinerary'" class="itinerary">
+      <h4 class="w3-center" style="font-weight: bold;">【 行程資料 】</h4>
+      <div class="itinerary-actions" v-if="isEditing">
+        <button @click="copyItinerary" class="action-btn" title="複製"><i class="fa fa-copy"></i></button>
+        <button @click="clearItinerary" class="action-btn" title="清除"><i class="fa fa-trash"></i></button>
+        <button @click="toggleFormat('bold')" class="format-btn" :class="{ active: currentFormat.bold }" title="粗體"><i class="fa fa-bold"></i></button>
+        <button @click="toggleFormat('highlight')" class="format-btn" :class="{ active: currentFormat.highlight }" title="高亮"><i class="fa fa-paint-brush"></i></button>
+        <button @click="toggleFormat('whitebg')" class="format-btn" :class="{ active: currentFormat.whitebg }" title="白色背景"><i class="fa fa-square" style="color: white; background-color: #666;"></i></button>
+        <button @click="toggleFormat('red')" class="format-btn" :class="{ active: currentFormat.red }" title="紅色文字"><i class="fa fa-font" style="color: red;"></i></button>
+        <button @click="toggleFormat('blue')" class="format-btn" :class="{ active: currentFormat.blue }" title="藍色文字"><i class="fa fa-font" style="color: blue;"></i></button>
+        <button @click="toggleFormat('black')" class="format-btn" :class="{ active: currentFormat.black }" title="黑色文字"><i class="fa fa-font" style="color: black;"></i></button>
+        <button @click="addToTodo" class="action-btn" title="加入待辦"><i class="fa fa-plus"></i></button>
+        <button @click="exitEditing" class="action-btn" title="退出編輯"><i class="fa fa-times"></i></button>
+      </div>
+      <div 
+        class="itinerary-textarea"
+        :contenteditable="isEditing"
+        :placeholder="'請在此貼上或輸入行程資料...'"
+        @input="updateItineraryText"
+        @mouseup="updateSelection"
+        @keyup="updateSelection"
+        @touchend="updateSelection"
+        @dblclick="startItineraryEditing"
+        @blur="handleBlur"
+      ></div>
+    </div>
+    <div v-if="activeTab === 'todo'" class="todo" ref="todoApp" @click.stop>
+      <h4 class="w3-center" style="font-weight: bold;">【 待辦備忘 】</h4>
+      <div class="todo-input">
+        <input v-model="newTodo" @keyup.enter="addTodo" placeholder="輸入新的待辦事項">
+        <button @click="addTodo">加</button>
+      </div>
+      
+
+      <!-- 操作按鈕區域 -->
+      <div class="todo-operations-container" v-if="selectedTodos.length > 0">
+        <div class="todo-operations" v-if="selectedTodos.length > 0">
+          <button @click="toggleImportant">切換重要</button>
+          <button @click="toggleCompleted">切換完成</button>
+          <button @click="openTodoEditPopup" :disabled="selectedTodos.length !== 1">編輯 </button>
+          <!-- 刪除選項 -->
+          <div class="dropdown">
+            <button @click="toggleDropdown('delete')" class="dropbtn">刪除</button>
+            <div :class="['dropdown-content', { show: activeDropdown === 'delete' }]">
+              <a @click="removeTodos">刪除<font style='background-color: #45a049;'>選中</font>項目</a>            
+              <a @click="deleteCompleted">刪除<font style='background-color: #d5f505;'>已完成</font>項目</a>
+              <a @click="confirmDeleteAll">刪除<font style='background-color: #f50505;'>所有</font>項目</a>
+            </div>
+          </div>
+        </div>
+      </div>  
+      <ul class="todo-list">
+        <li v-for="(todo, index) in todos" :key="index" 
+            :class="{ important: todo.important, completed: todo.completed, selected: selectedTodos.includes(index) }"
+            @click="toggleSelect(index, $event)"
+            draggable="true"
+            @dragstart="dragStart($event, index)"
+            @dragover.prevent="dragOver($event, index)"
+            @dragleave="dragLeave($event)"
+            @drop="drop($event, index)">
+          <span>{{ todo.text }}</span>
+        </li>
+      </ul>
+      <div v-if="showEditPopup" class="edit-popup">
+        <div class="edit-popup-content">
+          <textarea v-model="editingText" rows="5"></textarea>
+          <div class="edit-popup-buttons">
+            <button @click="saveEdit">保存</button>
+            <button @click="cancelEdit">取消</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div v-if="activeTab === 'calculator'" class="calculator">
+      <h4 class="w3-center" style="font-weight: bold;">【 計算神器 】</h4>
+      <input v-model="display" :class="{ result: isResult }" readonly />
+      <div class="buttons">
+        <button v-for="btn in buttons" :key="btn" @click="appendToDisplay(btn)">
+          {{ btn }}
+        </button>
+        <button @click="appendRoot">√</button>        
+        <button @click="calculatePercentage">%</button>
+        <button @click="clear">C</button>
+        <button @click="clearEntry">CE</button>
+        <button @click="backspace">←</button>
+        <button @click="calculate">=</button>
+      </div>
+    </div>
+    <div v-if="activeTab === 'exchange'" class="exchange">
+      <h4 class="w3-center" style="font-weight: bold;">【 幣值兌換 】</h4>
+      <button @click="fetchExchangeRates" :disabled="isLoading" class="update-rates-btn">
+        {{ isLoading ? '更新中...' : '更新匯率' }}
+      </button>   
+      <div v-if="isLoading">正在加載匯率數據...</div>
+      <div v-if="error" class="error">{{ error }}</div>
+      <div v-if="!isLoading && !error" class="exchange-inputs">
+        <input v-model="amount" type="number" placeholder="輸入金額">
+        <select v-model="fromCurrency">
+          <option v-for="currency in currencies" :value="currency.code">{{ currency.name }}</option>
+        </select>
+        <span>兌換為</span>
+        <select v-model="toCurrency">
+          <option v-for="currency in currencies" :value="currency.code">{{ currency.name }}</option>
+        </select>
+      </div>
+      <button @click="convertCurrency">兌換</button>
+      <div v-if="result" class="result">
+        {{ amount }} {{ fromCurrency }} = {{ result }} {{ toCurrency }}
+      </div>
+      <div v-if="lastUpdated" class="last-updated">
+        匯率更新時間：{{ lastUpdated }}
+      </div>
+    </div>
+    <div v-if="activeTab === 'timezone'" class="timezone">
+      <h4 class="w3-center" style="font-weight: bold;">【 時區換算 】</h4>
+      <div class="timezone-inputs">
+        <div class="current-time">當前時間：{{ formattedLocalTime }}</div>
+        <select v-model="fromTimezone">
+          <option v-for="tz in timezones" :value="tz.value">{{ tz.label }}</option>
+        </select>
+        <span>轉換為</span>
+        <select v-model="toTimezone">
+          <option v-for="tz in timezones" :value="tz.value">{{ tz.label }}</option>
+        </select>
+      </div>
+      <div class="result" v-if="convertedTime">
+        轉換結果：{{ convertedTime }}
+      </div>
+    </div>
+    <div v-if="activeTab === 'translate'" class="translate">
+      <h4 class="w3-center" style="font-weight: bold;">【 語言翻譯 】</h4>
+      <div class="translate-inputs">
+        <select v-model="fromLanguage">
+          <option v-for="lang in languages" :value="lang.code">{{ lang.name }}</option>
+        </select>
+        <button @click="swapLanguages" class="swap-btn">
+          <i class="fa fa-exchange"></i>
+        </button>
+        <select v-model="toLanguage">
+          <option v-for="lang in languages" :value="lang.code">{{ lang.name }}</option>
+        </select>
+      </div>
+      <div class="translate-textarea">
+        <textarea v-model="sourceText" placeholder="請輸入要翻譯的文字" rows="5"></textarea>
+        <button class="speak-btn" @click="speakText(sourceText, fromLanguage)" title="朗讀原文">
+          <i class="fa fa-volume-up"></i>
+        </button>
+      </div>
+      <button @click="translateText" class="translate-btn">翻譯</button>
+      <div class="translate-textarea">
+        <textarea v-model="translatedText" placeholder="翻譯結果" rows="5" readonly></textarea>
+        <button class="speak-btn" @click="speakText(translatedText, toLanguage)" title="朗讀譯文">
+          <i class="fa fa-volume-up"></i>
+        </button>
+      </div>
+    </div>
+    <div v-if="activeTab === 'data'" class="data-management">
+        <h4 class="w3-center" style="font-weight: bold;">【 資料管理 】</h4>
+        <p style="text-align: left;">
+          您可以將目前的「行程資料」與「待辦備忘」匯出成一個 JSON 檔案。
+          這個檔案可以備份您的資料，或傳送給同樣使用此工具的朋友，讓他們匯入。
+        </p>
+        <button @click="exportData" class="w3-button w3-green w3-round"><i class="fa fa-download"></i> 匯出資料</button>
+        <button @click="triggerImport" class="w3-button w3-blue w3-round"><i class="fa fa-upload"></i> 匯入資料</button>
+        <input type="file" ref="fileInput" @change="importData" style="display: none" accept=".json,application/json">
+    </div>
+    
+    <!-- 使用說明彈出窗口 -->
+    <div v-if="showInstructionsPopup" class="instructions-popup">
+      <div class="popup-content">
+        <button class='w3-right' @click="hideInstructions"><i class="fa fa-times" aria-hidden="true"></i></button>        
+        <h2>使用說明</h2>
+        <img src="./images/QR4TTools.png" style="width: 100%; max-width: 300px; display: block; margin: 10px auto; border-radius: 8px;">
+        <h3>計算器</h3>
+        <ul>
+          <li>基本運算：直接輸入數字和運算符，然後按 = 計算結果。</li>
+          <li>開方：輸入 n√x 格式（如 √25 或 3√27），然後按 = 計算。</li>
+          <li>次方：輸入 x^n 格式（如 2^3），然後按 = 計算。</li>
+          <li>百分比：輸入數字後按 % 轉換為百分比。</li>
+          <li>CE：清除最後一次輸入。</li>
+          <li>C：清除所有輸入。</li>
+          <li>←：刪除最後一個字符。</li>
+        </ul>
+        <h3>幣值兌換</h3>
+        <ul>
+          <li>輸入要兌換的金額。</li>
+          <li>選擇原始貨幣和目標貨幣。</li>
+          <li>點擊"兌換"按鈕查看結果。</li>
+          <li>點擊"更新匯率"按鈕獲取最新匯率。</li>
+        </ul>
+        <h3>時區換算</h3>
+        <ul>
+          <li>選擇或輸入本地時間。</li>
+          <li>選擇原始時區。</li>
+          <li>選擇目標時區。</li>
+          <li>轉換後的時間會自動顯示在下方。</li>
+        </ul>
+        <h3>待辦備忘</h3>
+        <ul>
+          <li>在輸入框中輸入新的待辦事項，按 Enter 鍵或點擊"加"按鈕來新增項目。</li>
+          <li>單擊待辦事項可以選中它，背景會變為灰色表示已選中。</li>
+          <li>使用 Ctrl/Cmd + 點擊可以選擇多個項目。</li>
+          <li>使用 Shift + 點擊可以選擇一個範圍的項目。</li>
+          <li>選中項目後，可以進行以下操作：</li>
+          <ul>
+            <li>切換重要：將選中的項目標記為重要或取消重要標記。</li>
+            <li>切換完成：將選中的項目標記為已完成或取消完成標記。</li>
+            <li>編輯：當只選中一個項目時，可以編輯其內容。</li>
+            <li>刪除：移除選中的項目、已完成項目或所有項目。</li>
+          </ul>
+          <li>拖曳排序：</li>
+          <ul>
+            <li>點擊並按住任何待辦事項</li>
+            <li>拖動它到您想要的位置</li>
+            <li>釋放滑鼠按鈕來放置待辦事項</li>
+            <li>拖動時會顯示半透明效果</li>
+            <li>拖動到其他項目上方時會顯示綠色邊框提示</li>
+          </ul>
+          <li>重要的待辦事項會在左側顯示黃色標記。</li>
+          <li>已完成的待辦事項會顯示刪除線。</li>
+          <li>所有更改會自動保存，下次打開應用時仍然可以看到。</li>
+          <li>每次操作後，選中狀態會自動清除，項目背景恢復正常。</li>
+        </ul>        
+        <h3>行程資料</h3>
+        <ul>
+          <li>預設為唯讀模式，雙擊內容區域即可進入編輯模式。</li>
+          <li>編輯模式下可以使用以下功能：</li>
+          <ul>
+            <li>複製：複製整個行程資料到剪貼簿</li>
+            <li>清除：清除所有行程資料</li>
+            <li>粗體：將選中的文字設為粗體</li>
+            <li>高亮：將選中的文字設為黃色背景</li>
+            <li>紅色文字：將選中的文字設為紅色</li>
+            <li>藍色文字：將選中的文字設為藍色</li>
+            <li>黑色文字：將選中的文字設為黑色（可用於清除文字顏色）</li>
+            <li>白色背景：將選中的文字設為白色背景（可用於清除背景色）</li>
+            <li>加入待辦：將選中的文字加入待辦事項列表</li>
+            <li>退出編輯：點擊 × 按鈕或點擊編輯區域外退出編輯模式</li>
+          </ul>
+          <li>所有更改會自動保存，下次打開應用時仍然可以看到。</li>
+          <li>在編輯模式下，可以自由編輯、格式化文字，並將重要內容加入待辦事項。</li>
+          <li>提示：要清除文字的格式，可以將文字設為黑色並使用白色背景。</li>
+        </ul>
+        <h3>語言翻譯</h3>
+        <ul>
+          <li>預設源語言為繁體中文，目標語言為英文。</li>
+          <li>在左側下拉選單選擇源語言。</li>
+          <li>在右側下拉選單選擇目標語言。</li>
+          <li>點擊中間的箭頭按鈕可以交換源語言和目標語言。</li>
+          <li>在上方文本框中輸入要翻譯的文字。</li>
+          <li>點擊右上角的喇叭圖標可以朗讀原文。</li>
+          <li>點擊"翻譯"按鈕進行翻譯。</li>
+          <li>翻譯結果會顯示在下方的文本框中。</li>
+          <li>點擊翻譯結果右上角的喇叭圖標可以朗讀譯文。</li>
+          <li>支持以下語言：</li>
+          <ul>
+            <li>中文（簡體）</li>
+            <li>中文（繁體）</li>
+            <li>英文</li>
+            <li>日文</li>
+            <li>韓文</li>
+            <li>越南文</li>
+            <li>泰文</li>
+            <li>印尼文</li>
+            <li>馬來文</li>
+          </ul>
+        </ul>
+        <h3>資料管理</h3>
+        <ul>
+          <li>您可以將目前的「行程資料」與「待辦備忘」匯出成一個 JSON 檔案。</li>
+          <li>點擊「資料管理」( <i class="fa fa-cog"></i> ) 分頁。</li>
+          <li><b>匯出資料：</b>點擊「匯出資料」按鈕，即可下載 `travel-tools-data.json` 檔案。</li>
+          <li><b>分享檔案：</b>您可以透過 Email、LINE 或其他通訊軟體，將這個檔案傳送給朋友。</li>
+          <li><b>匯入資料：</b>點擊「匯入資料」按鈕，選擇收到的 `.json` 檔案，即可載入朋友的資料或您自己的備份。請注意，匯入會覆蓋現有資料。</li>
+        </ul>
+      </div>
+    </div>    
+  </div>
+  <script>
+    const app = Vue.createApp({      
+      data() {
+        return {
+          display: '',
+          isResult: false,
+          buttons: ['7', '8', '9', '+', '4', '5', '6', '-', '1', '2', '3', '*', '0', '(', ')', '/', '.', '^'],
+          showInstructionsPopup: false,
+          activeTab: 'itinerary',
+          amount: null,
+          fromCurrency: 'USD',
+          toCurrency: 'TWD',
+          result: null,
+          currencies: [
+            { code: 'USD', name: '美元' },
+            { code: 'EUR', name: '歐元' },
+            { code: 'JPY', name: '日元' },
+            { code: 'GBP', name: '英鎊' },
+            { code: 'CNY', name: '人民幣' },
+            { code: 'TWD', name: '新台幣' },
+            { code: 'VND', name: '越南盾' }
+          ],
+          exchangeRates: {},
+          isLoading: false,
+          error: null,
+          lastUpdated: null,
+          localTime: new Date(),
+          fromTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone, // 獲取系統時區
+          toTimezone: 'America/New_York',
+          convertedTime: '',
+          timezones: [
+            { value: 'Asia/Taipei', label: '台北' },
+            { value: 'Asia/Tokyo', label: '東京' },
+            { value: 'America/New_York', label: '紐約' },
+            { value: 'America/Chicago', label: '芝加哥 (中部時間)' },
+            { value: 'America/Denver', label: '丹佛 (山地時間)' },
+            { value: 'America/Los_Angeles', label: '洛杉磯 (太平洋時間)' },
+            { value: 'America/Anchorage', label: '安克雷奇 (阿拉斯加時間)' },
+            { value: 'Pacific/Honolulu', label: '檀香山 (夏威夷-阿留申時間)' },            
+            { value: 'Europe/London', label: '倫敦' },
+            { value: 'Australia/Sydney', label: '雪梨' },
+            { value: 'Europe/Paris', label: '巴黎' },            
+              // 可以根據需要添加更多時區
+          ],
+          newTodo: '',
+          todos: JSON.parse(localStorage.getItem('todos') || '[]'),
+          showEditPopup: false,
+          editingText: '',
+          editingIndex: -1,
+          selectedTodos: [],
+          activeDropdown: null,
+          fromLanguage: 'zh-TW',
+          toLanguage: 'en',
+          sourceText: '',
+          translatedText: '',
+          languages: [
+            { code: 'zh-CN', name: '中文（簡體）' },
+            { code: 'zh-TW', name: '中文（繁體）' },
+            { code: 'en', name: 'English' },
+            { code: 'ja', name: '日本語' },
+            { code: 'ko', name: '한국어' },
+            { code: 'vi', name: 'Tiếng Việt' },
+            { code: 'th', name: 'ไทย' },
+            { code: 'id', name: 'Bahasa Indonesia' },
+            { code: 'ms', name: 'Bahasa Melayu' }
+          ],
+          itineraryText: localStorage.getItem('itinerary') || '',
+          currentFormat: {
+            bold: false,
+            highlight: false,
+            red: false,
+            blue: false,
+            black: false,
+            whitebg: false
+          },
+          selectedText: '',
+          currentRange: null,
+          isEditing: false,
+        }
+      },
+      computed: {
+        formattedLocalTime() {
+          return this.formatTime(this.localTime, this.fromTimezone);
+        }
+      },
+      methods: {
+        showInstructions() {
+          this.showInstructionsPopup = true;
+        },
+        hideInstructions() {
+          this.showInstructionsPopup = false;
+        },
+        appendToDisplay(value) {
+          if (this.isResult && !isNaN(value)) {
+            this.display = '';
+          }
+          this.display += value;
+          this.isResult = false;
+        },
+        clear() {
+          this.display = '';
+          this.isResult = false;
+        },
+        clearEntry() {
+          if (this.isResult) {
+            this.clear();
+            return;
+          }
+          const operators = ['+', '-', '*', '/', '^'];
+          for (let i = this.display.length - 1; i >= 0; i--) {
+            if (operators.includes(this.display[i])) {
+              this.display = this.display.slice(0, i + 1);
+              return;
+            }
+          }
+          this.display = '';
+        },
+        backspace() {
+          if (this.isResult) {
+            this.clear();
+          } else {
+            this.display = this.display.slice(0, -1);
+          }
+        },
+        appendRoot() {
+        if (this.isResult) {
+          this.display = '';
+          }
+          this.display += '√';
+          this.isResult = false;  
+        },
+        calculate() {
+          try {
+            let result;
+            if (this.display.includes('√')) {
+              result = this.calculateRoot();
+            } else if (this.display.includes('^')) {
+              result = this.calculatePower();
+            } else {
+              result = new Function('return ' + this.display)();  
+            }
+            this.display = result.toString();
+            this.isResult = true;
+          } catch (e) {
+            this.display = '錯誤: ' + e.message;
+            this.isResult = true;
+          }
+        },
+        calculatePower() {
+          const parts = this.display.split('^');
+          if (parts.length === 2) {
+            const base = parseFloat(parts[0]);
+            const exponent = parseFloat(parts[1]);
+            if (isNaN(base) || isNaN(exponent)) {
+              throw new Error('無效的輸入');
+            }
+            return Math.pow(base, exponent);
+          } else {
+            throw new Error('無效的次方格式');
+          } 
+        },
+        calculateRoot() {
+          const parts = this.display.split('√');
+          if (parts.length === 2) {
+            const n = parts[0] ? parseFloat(parts[0]) : 2;
+            const x = parseFloat(parts[1]);
+            if (isNaN(n) || isNaN(x)) {
+              throw new Error('無效的輸入');
+            }
+            if (x < 0 && n % 2 === 0) {
+              throw new Error('偶次方根的被開方數不能為負數');
+            }
+            return Math.pow(x, 1/n);
+          } else {
+            throw new Error('無效的根號格式');
+          }
+        },
+        calculatePercentage() {
+          try {
+            const result = parseFloat(this.display) / 100;
+            this.display = result.toString();
+            this.isResult = true;
+          } catch (e) {
+            this.display = '錯誤: ' + e.message;
+            this.isResult = true;
+          }
+        },
+        convertCurrency() {
+          if (this.amount && this.fromCurrency && this.toCurrency) {
+            const fromRate = this.exchangeRates[this.fromCurrency];
+            const toRate = this.exchangeRates[this.toCurrency];
+            this.result = ((this.amount / fromRate) * toRate).toFixed(2);
+          }
+        },
+        async fetchExchangeRates() {
+          this.isLoading = true;
+          this.error = null;
+          try {
+            const response = await fetch('https://open.er-api.com/v6/latest/USD');
+            const data = await response.json();
+            if (data.result === 'success') {
+              this.exchangeRates = data.rates || data.conversion_rates;
+              this.lastUpdated = new Date().toLocaleString();
+            } else {
+              throw new Error('無法獲取匯率數據');
+            }
+          } catch (error) {
+            this.error = '獲取匯率時出錯：' + error.message;
+          } finally {
+            this.isLoading = false;
+          }
+        },
+        async convertCurrency() {
+          if (this.amount && this.fromCurrency && this.toCurrency) {
+            if (Object.keys(this.exchangeRates).length === 0) {
+              await this.fetchExchangeRates();
+            }
+            if (this.error) return;
+            
+            const fromRate = this.exchangeRates[this.fromCurrency];
+            const toRate = this.exchangeRates[this.toCurrency];
+            this.result = ((this.amount / fromRate) * toRate).toFixed(2);
+          }
+        },
+        formatTime(date, timezone) {
+          return new Intl.DateTimeFormat('zh-TW', {
+            timeZone: timezone,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+          }).format(date);
+        },
+        convertTime() {          
+          this.convertedTime = this.formatTime(this.localTime, this.toTimezone);
+        },
+        updateLocalTime() {
+          this.localTime = new Date();
+          this.convertTime(); // 在更新本地時間時同時更新轉換後的時間
+        },
+        addTodo() {
+          if (this.newTodo.trim()) {
+            this.todos.push({
+              text: this.newTodo.trim(), 
+              completed: false, 
+              important: false
+            });
+            this.newTodo = '';
+            this.saveTodos();
+          }
+        },        
+        saveTodos() {
+          localStorage.setItem('todos', JSON.stringify(this.todos));
+        },
+        moveTodo(index, direction) {
+          if ((direction === -1 && index > 0) || (direction === 1 && index < this.todos.length - 1)) {
+            const newIndex = index + direction;
+            const [removed] = this.todos.splice(index, 1);
+            this.todos.splice(newIndex, 0, removed);
+            this.saveTodos();
+          }
+        },
+        toggleSelect(index, event) {
+          if (event.ctrlKey || event.metaKey) {
+            // Ctrl/Cmd + 點擊：切換選擇
+            const i = this.selectedTodos.indexOf(index);
+            if (i > -1) {
+              this.selectedTodos.splice(i, 1);
+            } else {
+              this.selectedTodos.push(index);
+            }
+          } else if (event.shiftKey && this.selectedTodos.length > 0) {
+            // Shift + 點擊：範圍選擇
+            const start = this.selectedTodos[this.selectedTodos.length - 1];
+            const end = index;
+            const range = [...Array(Math.abs(end - start) + 1).keys()].map(i => i + Math.min(start, end));
+            this.selectedTodos = [...new Set([...this.selectedTodos, ...range])];
+          } else {
+            // 普通點擊：單選
+            this.selectedTodos = [index];
+          }
+        },
+        clearSelection() {
+          this.selectedTodos = [];
+        },
+        handleOutsideClick(event) {
+          const todoApp = this.$refs.todoApp;
+          if (todoApp && !todoApp.contains(event.target)) {
+            this.clearSelection();
+          }
+        },
+        toggleImportant() {
+          this.selectedTodos.forEach(index => {
+            this.todos[index].important = !this.todos[index].important;
+          });
+          this.saveTodos();
+          this.clearSelection();
+        },
+        toggleCompleted() {
+          this.selectedTodos.forEach(index => {
+            this.todos[index].completed = !this.todos[index].completed;
+          });
+          this.saveTodos();
+          this.clearSelection();
+        },
+        moveToTop() {
+          const movedItems = this.selectedTodos.map(index => this.todos[index]).reverse();
+          this.selectedTodos.sort((a, b) => b - a).forEach(index => this.todos.splice(index, 1));
+          this.todos.unshift(...movedItems);
+          this.selectedTodos = [...Array(movedItems.length).keys()];
+          this.saveTodos();          
+          this.clearSelection();
+          this.activeDropdown = null;
+        },
+        moveToBottom() {
+          const movedItems = this.selectedTodos.map(index => this.todos[index]);
+          this.selectedTodos.sort((a, b) => b - a).forEach(index => this.todos.splice(index, 1));
+          this.todos.push(...movedItems);
+          this.selectedTodos = [...Array(movedItems.length).keys()].map(i => this.todos.length - 1 - i);
+          this.saveTodos();          
+          this.clearSelection();
+          this.activeDropdown = null;
+        },
+        moveTodos(steps) {
+          const direction = steps > 0 ? 1 : -1;
+          const sortedIndexes = direction === 1 ? 
+            this.selectedTodos.sort((a, b) => a - b) : 
+            this.selectedTodos.sort((a, b) => b - a);
+          
+          sortedIndexes.forEach(index => {
+            const newIndex = Math.max(0, Math.min(this.todos.length - 1, index + steps));
+            const [removed] = this.todos.splice(index, 1);
+            this.todos.splice(newIndex, 0, removed);
+            const selectedIndex = this.selectedTodos.indexOf(index);
+            this.selectedTodos[selectedIndex] = newIndex;
+          });
+          this.saveTodos();
+          this.clearSelection();
+          this.activeDropdown = null;
+        },
+        removeTodos() {
+          this.selectedTodos.sort((a, b) => b - a).forEach(index => this.todos.splice(index, 1));
+          this.selectedTodos = [];
+          this.saveTodos();
+          this.clearSelection();
+          this.activeDropdown = null;
+        },
+        openTodoEditPopup() {
+          if (this.selectedTodos.length === 1) {
+            const index = this.selectedTodos[0];
+            this.editingIndex = index;
+            this.editingText = this.todos[index].text;
+            this.showEditPopup = true;
+          }
+        },
+        saveEdit() {
+          if (this.editingIndex !== -1) {
+            this.todos[this.editingIndex].text = this.editingText;
+            this.saveTodos();
+          }
+          this.cancelEdit();
+        },
+        cancelEdit() {
+          this.showEditPopup = false;
+          this.editingIndex = -1;
+          this.editingText = '';
+          this.clearSelection();
+        },
+        confirmDeleteAll() {
+          if (confirm('確定要刪除所有待辦事項嗎？此操作無法復原哦！')) {
+            this.deleteAll();
+          }
+          this.activeDropdown = null;
+        },
+        deleteAll() {
+          this.todos = [];
+          this.saveTodos();
+        },
+        deleteCompleted() {
+          this.todos = this.todos.filter(todo => !todo.completed);
+          this.saveTodos();
+          this.activeDropdown = null;
+        },
+        toggleDropdown(type) {
+          this.activeDropdown = this.activeDropdown === type ? null : type;
+        },
+        dragStart(event, index) {
+          event.dataTransfer.setData('text/plain', index);
+          event.target.classList.add('dragging');
+        },
+        dragOver(event, index) {
+          event.preventDefault();
+          const target = event.target.closest('li');
+          if (target) {
+            target.classList.add('drag-over');
+          }
+        },
+        dragLeave(event) {
+          const target = event.target.closest('li');
+          if (target) {
+            target.classList.remove('drag-over');
+          }
+        },
+        drop(event, index) {
+          event.preventDefault();
+          const draggedIndex = event.dataTransfer.getData('text/plain');
+          const targetIndex = index;
+          
+          if (draggedIndex !== targetIndex) {
+            const [removed] = this.todos.splice(draggedIndex, 1);
+            this.todos.splice(targetIndex, 0, removed);
+            this.saveTodos();
+          }
+          
+          event.target.classList.remove('dragging', 'drag-over');
+        },
+        swapLanguages() {
+          const temp = this.fromLanguage;
+          this.fromLanguage = this.toLanguage;
+          this.toLanguage = temp;
+        },
+        async translateText() {
+          if (!this.sourceText) return;
+          
+          try {
+            const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(this.sourceText)}&langpair=${this.fromLanguage}|${this.toLanguage}`);
+            const data = await response.json();
+            
+            if (data.responseStatus === 200 && data.responseData) {
+              this.translatedText = data.responseData.translatedText;
+            } else {
+              throw new Error(data.responseStatus === 429 ? '翻譯請求過多，請稍後再試' : '翻譯失敗');
+            }
+          } catch (error) {
+            console.error('翻譯錯誤:', error);
+            this.translatedText = '翻譯時發生錯誤，請稍後再試。';
+          }
+        },
+        speakText(text, lang) {
+          if (!text) return;
+          
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = lang;
+          utterance.rate = 1.0;
+          utterance.pitch = 1.0;
+          
+          // 停止當前正在播放的語音
+          window.speechSynthesis.cancel();
+          
+          // 播放新的語音
+          window.speechSynthesis.speak(utterance);
+        },
+        copyItinerary() {
+          navigator.clipboard.writeText(this.itineraryText)
+            .then(() => alert('行程資料已複製到剪貼簿'))
+            .catch(err => console.error('複製失敗:', err));
+        },
+        clearItinerary() {
+          if (confirm('確定要清除所有行程資料嗎？')) {
+            this.itineraryText = '';
+            const contentDiv = document.querySelector('.itinerary-textarea');
+            if (contentDiv) {
+              contentDiv.innerHTML = '';
+            }
+            localStorage.setItem('itinerary', '');
+            // 強制更新視圖
+            this.$forceUpdate();
+          }
+        },
+        updateItineraryText(event) {
+          if (this.isEditing) {
+            const content = event.target.innerHTML;
+            this.itineraryText = content;
+            localStorage.setItem('itinerary', content);
+          }
+        },
+        updateSelection() {
+          const selection = window.getSelection();
+          if (selection) {
+            this.selectedText = selection.toString();
+            // 在手機上，需要手動設置選擇範圍
+            if (this.selectedText) {
+              const range = selection.getRangeAt(0);
+              this.currentRange = range;
+            }
+          }
+        },
+        toggleFormat(format) {
+          const selection = window.getSelection();
+          if (!selection.toString()) return;
+
+          const range = selection.getRangeAt(0);
+          const selectedText = selection.toString();
+          
+          // 創建新的格式化元素
+          const span = document.createElement('span');
+          
+          // 檢查選中的文本是否已經有該格式
+          const hasFormat = this.checkExistingFormat(range, format);
+          
+          if (hasFormat) {
+            // 如果已經有該格式，則移除它
+            const textNode = document.createTextNode(selectedText);
+            range.deleteContents();
+            range.insertNode(textNode);
+            this.currentFormat[format] = false;
+          } else {
+            // 如果沒有該格式，則添加它
+            switch(format) {
+              case 'bold':
+                span.style.fontWeight = 'bold';
+                break;
+              case 'highlight':
+                span.style.backgroundColor = '#FFFF00';
+                break;
+              case 'red':
+                span.style.color = 'red';
+                break;
+              case 'blue':
+                span.style.color = 'blue';
+                break;
+              case 'black':
+                span.style.color = 'black';
+                break;
+              case 'whitebg':
+                span.style.backgroundColor = 'white';
+                break;
+            }
+            span.textContent = selectedText;
+            range.deleteContents();
+            range.insertNode(span);
+            this.currentFormat[format] = true;
+          }
+          
+          // 更新行程文本
+          const contentDiv = document.querySelector('.itinerary-textarea');
+          this.itineraryText = contentDiv.innerHTML;
+          localStorage.setItem('itinerary', this.itineraryText);
+          
+          // 在移動設備上重新設置選擇範圍
+          if (window.innerWidth <= 768) {
+            const newRange = document.createRange();
+            newRange.selectNodeContents(span);
+            selection.removeAllRanges();
+            selection.addRange(newRange);
+          }
+        },
+        
+        checkExistingFormat(range, format) {
+          const container = range.commonAncestorContainer;
+          const element = container.nodeType === 3 ? container.parentElement : container;
+          
+          if (!element) return false;
+          
+          switch(format) {
+            case 'bold':
+              return element.style.fontWeight === 'bold' || 
+                     window.getComputedStyle(element).fontWeight === '700' ||
+                     element.tagName === 'B' || element.tagName === 'STRONG';
+            case 'highlight':
+              return element.style.backgroundColor === '#FFFF00';
+            case 'red':
+              return element.style.color === 'red';
+            case 'blue':
+              return element.style.color === 'blue';
+            case 'black':
+              return element.style.color === 'black';
+            case 'whitebg':
+              return element.style.backgroundColor === 'white';
+            default:
+              return false;
+          }
+        },
+        
+        removeFormat() {
+          const selection = window.getSelection();
+          if (!selection.toString()) {
+            alert('請先選擇要清除格式的文字');
+            return;
+          }
+
+          const range = selection.getRangeAt(0);
+          const selectedText = selection.toString();
+          
+          // 創建純文本節點
+          const textNode = document.createTextNode(selectedText);
+          
+          // 刪除選中的內容
+          range.deleteContents();
+          
+          // 插入純文本
+          range.insertNode(textNode);
+          
+          // 更新行程文本
+          const contentDiv = document.querySelector('.itinerary-textarea');
+          this.itineraryText = contentDiv.innerHTML;
+          localStorage.setItem('itinerary', this.itineraryText);
+          
+          // 在移動設備上重新設置選擇範圍
+          if (window.innerWidth <= 768) {
+            const newRange = document.createRange();
+            newRange.selectNodeContents(textNode);
+            selection.removeAllRanges();
+            selection.addRange(newRange);
+          }
+        },
+        addToTodo() {
+          if (this.selectedText) {
+            this.newTodo = this.selectedText;
+            this.activeTab = 'todo';
+            this.$nextTick(() => {
+              const todoInput = document.querySelector('.todo-input input');
+              if (todoInput) {
+                todoInput.value = this.selectedText;
+                this.addTodo();
+              }
+            });
+          } else {
+            alert('請先選擇要加入待辦事項的文字');
+          }
+        },
+        startItineraryEditing() {
+          this.isEditing = true;
+          this.$nextTick(() => {
+            const contentDiv = document.querySelector('.itinerary-textarea');
+            if (contentDiv) {
+              contentDiv.focus();
+            }
+          });
+        },
+        exitEditing() {
+          this.isEditing = false;
+          // 保存最後的編輯內容
+          const contentDiv = document.querySelector('.itinerary-textarea');
+          if (contentDiv) {
+            this.itineraryText = contentDiv.innerHTML;
+            localStorage.setItem('itinerary', this.itineraryText);
+          }
+        },
+        handleBlur(event) {
+          // 如果點擊的是編輯區域外的區域，則退出編輯模式
+          if (this.isEditing) {
+            const relatedTarget = event.relatedTarget;
+            if (!relatedTarget || !relatedTarget.closest('.itinerary-actions')) {
+              this.exitEditing();
+            }
+          }
+        },
+        exportData() {
+          const dataToExport = {
+            itinerary: this.itineraryText,
+            todos: this.todos
+          };
+          const jsonString = JSON.stringify(dataToExport, null, 2); // Pretty print JSON
+          const blob = new Blob([jsonString], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'travel-tools-data.json';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        },
+        triggerImport() {
+          this.$refs.fileInput.click();
+        },
+        importData(event) {
+          const file = event.target.files[0];
+          if (!file) {
+            return;
+          }
+
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            try {
+              const importedData = JSON.parse(e.target.result);
+
+              // Basic validation
+              if (typeof importedData.itinerary !== 'string' || !Array.isArray(importedData.todos)) {
+                throw new Error('Invalid file format.');
+              }
+
+              if (confirm('確定要匯入資料嗎？這將會覆蓋您目前的行程與待辦事項。')) {
+                // Update data
+                this.itineraryText = importedData.itinerary;
+                this.todos = importedData.todos;
+
+                // Force update for itinerary display
+                this.$nextTick(() => {
+                  const contentDiv = document.querySelector('.itinerary-textarea');
+                  if (contentDiv) {
+                    contentDiv.innerHTML = this.itineraryText;
+                  }
+                });
+                
+                alert('資料匯入成功！');
+              }
+            } catch (error) {
+              alert('匯入失敗：無效的檔案格式或內容已損毀。');
+              console.error('Import error:', error);
+            } finally {
+              // Reset file input so user can import the same file again if needed
+              event.target.value = '';
+            }
+          };
+          reader.readAsText(file);
+        }
+      },
+      watch: {
+        fromTimezone() {
+          this.convertTime();
+        },
+        toTimezone() {
+          this.convertTime();
+        },
+        todos: {
+          handler() {
+            this.saveTodos();
+          },
+          deep: true
+        },
+        itineraryText: {
+          handler(newVal) {
+            localStorage.setItem('itinerary', newVal);
+          }
+        },
+        activeTab(newTab) {
+          if (newTab === 'itinerary') {
+            this.$nextTick(() => {
+              const contentDiv = document.querySelector('.itinerary-textarea');
+              if (contentDiv) {
+                contentDiv.innerHTML = this.itineraryText;
+              }
+            });
+          }
+        },
+      },
+      mounted() {
+        // 註冊 Service Worker 實現 PWA 離線支援
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('./sw.js')
+            .then((reg) => console.log('Service Worker 註冊成功，Scope: ', reg.scope))
+            .catch((err) => console.error('Service Worker 註冊失敗: ', err));
+        }
+
+        this.fetchExchangeRates();
+        this.convertTime();
+        // 每秒更新一次本地時間
+        setInterval(this.updateLocalTime, 1000);
+        document.addEventListener('click', this.handleOutsideClick);
+        
+        // 初始化行程文本
+        this.$nextTick(() => {
+          const contentDiv = document.querySelector('.itinerary-textarea');
+          if (contentDiv) {
+            contentDiv.innerHTML = this.itineraryText;
+          }
+        });
+      },
+      beforeDestroy() {
+        document.removeEventListener('click', this.handleOutsideClick);
+      },
+    })
+    app.mount('#app')
+  </script>
+  <footer class='w3-container-fluid w3-border-top w3-center w3-text-white'>
+    Vibe Coded by: <font color='red'><i>Famidoc Chang</i></font>
+    <a href="https://www.facebook.com/profile.php?id=100095479744046" target="_blank" style="color:#fff"><i class='fa fa-facebook-square w3-xlarge'></i></a>
+    <a href='mailto:famidoctor@gmail.com'><i class='fa fa-envelope w3-xlarge'></i></a>
+  </footer>
+  <br>  
+</body>
+</html>
+
