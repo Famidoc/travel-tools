@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
   <style>
     /* 全局變數與基礎樣式 */
     :root {
@@ -206,8 +207,8 @@
     .itinerary {
       display: flex;
       flex-direction: column;
-      height: 70vh;
-      min-height: 450px;
+      height: calc(100vh - 180px);
+      min-height: 500px;
     }
 
     .itinerary-actions {
@@ -700,6 +701,13 @@
       color: #38bdf8;
     }
 
+    /* 拖曳排序預覽樣式 */
+    .sortable-ghost {
+      opacity: 0.4;
+      background-color: #eff6ff !important;
+      border: 2px dashed #3b82f6 !important;
+    }
+
     /* 手機與窄螢幕 (RWD) 額外優化 */
     @media (max-width: 600px) {
       .tabs {
@@ -784,12 +792,7 @@
       <ul class="todo-list">
         <li v-for="(todo, index) in todos" :key="index" 
             :class="{ important: todo.important, completed: todo.completed, selected: selectedTodos.includes(index) }"
-            @click="toggleSelect(index, $event)"
-            draggable="true"
-            @dragstart="dragStart($event, index)"
-            @dragover.prevent="dragOver($event, index)"
-            @dragleave="dragLeave($event)"
-            @drop="drop($event, index)">
+            @click="toggleSelect(index, $event)">
           <span>{{ todo.text }}</span>
         </li>
       </ul>
@@ -1397,36 +1400,7 @@
         toggleDropdown(type) {
           this.activeDropdown = this.activeDropdown === type ? null : type;
         },
-        dragStart(event, index) {
-          event.dataTransfer.setData('text/plain', index);
-          event.target.classList.add('dragging');
-        },
-        dragOver(event, index) {
-          event.preventDefault();
-          const target = event.target.closest('li');
-          if (target) {
-            target.classList.add('drag-over');
-          }
-        },
-        dragLeave(event) {
-          const target = event.target.closest('li');
-          if (target) {
-            target.classList.remove('drag-over');
-          }
-        },
-        drop(event, index) {
-          event.preventDefault();
-          const draggedIndex = event.dataTransfer.getData('text/plain');
-          const targetIndex = index;
-          
-          if (draggedIndex !== targetIndex) {
-            const [removed] = this.todos.splice(draggedIndex, 1);
-            this.todos.splice(targetIndex, 0, removed);
-            this.saveTodos();
-          }
-          
-          event.target.classList.remove('dragging', 'drag-over');
-        },
+
         swapLanguages() {
           const temp = this.fromLanguage;
           this.fromLanguage = this.toLanguage;
@@ -1619,15 +1593,17 @@
         },
         addToTodo() {
           if (this.selectedText) {
-            this.newTodo = this.selectedText;
-            this.activeTab = 'todo';
-            this.$nextTick(() => {
-              const todoInput = document.querySelector('.todo-input input');
-              if (todoInput) {
-                todoInput.value = this.selectedText;
-                this.addTodo();
-              }
+            // 直接將選取文字推入待辦陣列並保存，避免直接操作 DOM 破壞 Vue 響應式綁定
+            this.todos.push({
+              text: this.selectedText.trim(),
+              completed: false,
+              important: false
             });
+            this.saveTodos();
+            this.selectedText = ''; // 清空選取文字暫存
+            
+            // 自動切換到待辦備忘分頁讓用戶看見新增的項目
+            this.activeTab = 'todo';
           } else {
             alert('請先選擇要加入待辦事項的文字');
           }
@@ -1718,6 +1694,25 @@
             }
           };
           reader.readAsText(file);
+        },
+        initSortable() {
+          const el = document.querySelector('.todo-list');
+          if (el && !this.sortableInstance) {
+            this.sortableInstance = Sortable.create(el, {
+              animation: 150,
+              ghostClass: 'sortable-ghost',
+              onEnd: (evt) => {
+                const oldIndex = evt.oldIndex;
+                const newIndex = evt.newIndex;
+                if (oldIndex !== newIndex) {
+                  // 同步更新 Vue todos 陣列以保存狀態
+                  const [removed] = this.todos.splice(oldIndex, 1);
+                  this.todos.splice(newIndex, 0, removed);
+                  this.saveTodos();
+                }
+              }
+            });
+          }
         }
       },
       watch: {
@@ -1746,6 +1741,10 @@
                 contentDiv.innerHTML = this.itineraryText;
               }
             });
+          } else if (newTab === 'todo') {
+            this.$nextTick(() => {
+              this.initSortable();
+            });
           }
         },
       },
@@ -1768,6 +1767,9 @@
           const contentDiv = document.querySelector('.itinerary-textarea');
           if (contentDiv) {
             contentDiv.innerHTML = this.itineraryText;
+          }
+          if (this.activeTab === 'todo') {
+            this.initSortable();
           }
         });
       },

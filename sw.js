@@ -5,7 +5,8 @@ const ASSETS_TO_CACHE = [
   './manifest.json',
   'https://www.w3schools.com/w3css/4/w3.css',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css',
-  'https://unpkg.com/vue@3/dist/vue.global.js'
+  'https://unpkg.com/vue@3/dist/vue.global.js',
+  'https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js'
 ];
 
 // 安裝事件：快取所有靜態資源
@@ -48,6 +49,7 @@ self.addEventListener('fetch', (event) => {
     url.hostname.includes('w3schools.com') ||
     url.hostname.includes('cdnjs.cloudflare.com') ||
     url.hostname.includes('unpkg.com') ||
+    url.hostname.includes('jsdelivr.net') ||
     url.pathname.includes('/fonts/')
   ) {
     event.respondWith(
