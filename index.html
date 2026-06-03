@@ -769,6 +769,46 @@
     .show {
       display: block !important;
     }
+
+    /* 修正黑暗模式下行程編輯器內容因寫死顏色而看不清的問題 */
+    body.dark .itinerary-textarea,
+    body.dark .itinerary-textarea * {
+      color: var(--text-primary) !important;
+    }
+
+    /* 保留紅色文字重點標記 */
+    body.dark .itinerary-textarea span[style*="color: red"],
+    body.dark .itinerary-textarea span[style*="color:red"],
+    body.dark .itinerary-textarea span[style*="color: rgb(255, 0, 0)"],
+    body.dark .itinerary-textarea span[style*="color:rgb(255,0,0)"],
+    body.dark .itinerary-textarea font[color="red"],
+    body.dark .itinerary-textarea font[color="#ef4444"],
+    body.dark .itinerary-textarea font[color="red"] * {
+      color: #ef4444 !important;
+    }
+
+    /* 保留藍色文字重點標記 */
+    body.dark .itinerary-textarea span[style*="color: blue"],
+    body.dark .itinerary-textarea span[style*="color:blue"],
+    body.dark .itinerary-textarea span[style*="color: rgb(0, 0, 255)"],
+    body.dark .itinerary-textarea span[style*="color:rgb(0,0,255)"],
+    body.dark .itinerary-textarea span[style*="color: rgb(59, 130, 246)"],
+    body.dark .itinerary-textarea span[style*="color:rgb(59,130,246)"],
+    body.dark .itinerary-textarea font[color="blue"],
+    body.dark .itinerary-textarea font[color="#3b82f6"],
+    body.dark .itinerary-textarea font[color="blue"] * {
+      color: #3b82f6 !important;
+    }
+
+    /* 修正黃色高亮背景在黑暗模式下的對比度，將高亮背景內的文字強制改回深色以利閱讀 */
+    body.dark .itinerary-textarea .highlight,
+    body.dark .itinerary-textarea span[style*="background-color: #FFFF00"],
+    body.dark .itinerary-textarea span[style*="background-color:#FFFF00"],
+    body.dark .itinerary-textarea span[style*="background-color: rgb(255, 255, 0)"],
+    body.dark .itinerary-textarea span[style*="background-color:rgb(255,255,0)"] {
+      color: #0f172a !important;
+      background-color: #fef08a !important; /* 使用稍暗柔和的黃色背景 */
+    }
   </style>
 </head>
 <body>  
