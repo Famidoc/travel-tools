@@ -33,6 +33,53 @@
       --radius-lg: 18px;
     }
 
+    /* 黑暗模式主題定義 */
+    body.dark {
+      --bg-color: #0f172a;
+      --card-bg: rgba(30, 41, 59, 0.95);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --border-color: #334155;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+    }
+
+    /* 頂部標題與主題切換欄 */
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 95%;
+      max-width: 600px;
+      margin: 10px auto 5px auto;
+      padding: 0 10px;
+      box-sizing: border-box;
+    }
+
+    .app-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--primary-color);
+      letter-spacing: 1px;
+    }
+
+    .theme-toggle-btn {
+      background: transparent;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: color 0.2s, transform 0.2s;
+      padding: 5px 10px;
+      outline: none;
+    }
+
+    .theme-toggle-btn:hover {
+      color: var(--primary-color);
+      transform: scale(1.15);
+    }
+
     body {
       background-color: var(--bg-color);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft JhengHei", sans-serif;
@@ -90,7 +137,7 @@
     }
 
     .tabs button.active {
-      background-color: white;
+      background-color: var(--card-bg);
       color: var(--primary-color);
       box-shadow: var(--shadow-md);
     }
@@ -255,7 +302,7 @@
       font-size: 16px;
       line-height: 1.6;
       overflow-y: auto;
-      background-color: white;
+      background-color: var(--bg-color);
       outline: none;
       box-sizing: border-box;
     }
@@ -291,7 +338,7 @@
       font-size: 15px;
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
-      background-color: white;
+      background-color: var(--bg-color);
       outline: none;
       transition: border-color 0.2s, box-shadow 0.2s;
       box-sizing: border-box;
@@ -417,7 +464,7 @@
       padding: 12px 14px;
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
-      background-color: white;
+      background-color: var(--bg-color);
       cursor: pointer;
       transition: all 0.2s;
       word-wrap: break-word;
@@ -430,7 +477,7 @@
     .todo-list li:hover {
       transform: translateY(-1px);
       box-shadow: var(--shadow-sm);
-      background-color: #fafbfc;
+      background-color: rgba(59, 130, 246, 0.08);
     }
  
     .todo-list li.important {
@@ -505,7 +552,7 @@
       display: none;
       position: absolute;
       right: 0;
-      background-color: white;
+      background-color: var(--card-bg);
       min-width: 160px;
       box-shadow: var(--shadow-lg);
       z-index: 100;
@@ -613,7 +660,7 @@
     }
 
     .popup-content, .edit-popup-content {
-      background-color: white;
+      background-color: var(--card-bg);
       padding: 24px;
       border-radius: var(--radius-lg);
       max-width: 90%;
@@ -726,6 +773,14 @@
 </head>
 <body>  
   <div id="app">
+    <!-- 頂部標題與主題切換欄 -->
+    <div class="header-bar">
+      <span class="app-title"><i class="fa fa-plane"></i> Travel Tools</span>
+      <button @click="toggleDarkMode" class="theme-toggle-btn" :title="isDarkMode ? '切換為亮色模式' : '切換為深色模式'">
+        <i :class="['fa', isDarkMode ? 'fa-sun-o' : 'fa-moon-o']"></i>
+      </button>
+    </div>
+
     <div class="tabs">
       <button @click="activeTab = 'itinerary'" :class="{ active: activeTab === 'itinerary' }"><i class="fa fa-map" aria-hidden="true"></i></button>
       <button @click="activeTab = 'todo'" :class="{ active: activeTab === 'todo' }"><i class="fa fa-tasks" aria-hidden="true"></i></button>
@@ -1020,6 +1075,7 @@
     const app = Vue.createApp({      
       data() {
         return {
+          isDarkMode: false,
           display: '',
           isResult: false,
           buttons: ['7', '8', '9', '+', '4', '5', '6', '-', '1', '2', '3', '*', '0', '(', ')', '/', '.', '^'],
@@ -1102,6 +1158,19 @@
         }
       },
       methods: {
+        toggleDarkMode() {
+          this.isDarkMode = !this.isDarkMode;
+          this.applyTheme();
+        },
+        applyTheme() {
+          if (this.isDarkMode) {
+            document.body.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+          } else {
+            document.body.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+          }
+        },
         showInstructions() {
           this.showInstructionsPopup = true;
         },
@@ -1783,6 +1852,13 @@
         },
       },
       mounted() {
+        // 載入與初始化黑暗模式主題（優先讀取 LocalStorage，若無則依據系統偏好偵測）
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          this.isDarkMode = true;
+        }
+        this.applyTheme();
+
         // 註冊 Service Worker 實現 PWA 離線支援
         if ('serviceWorker' in navigator) {
           navigator.serviceWorker.register('./sw.js')
