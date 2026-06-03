@@ -930,10 +930,10 @@
         <button @click="clearItinerary" class="action-btn" title="清除"><i class="fa fa-trash"></i></button>
         <button @click="toggleFormat('bold')" class="format-btn" :class="{ active: currentFormat.bold }" title="粗體"><i class="fa fa-bold"></i></button>
         <button @click="toggleFormat('highlight')" class="format-btn" :class="{ active: currentFormat.highlight }" title="高亮"><i class="fa fa-paint-brush"></i></button>
-        <button @click="toggleFormat('whitebg')" class="format-btn" :class="{ active: currentFormat.whitebg }" title="白色背景"><i class="fa fa-square" style="color: white; background-color: #666;"></i></button>
+        <button @click="toggleFormat('whitebg')" class="format-btn" :class="{ active: currentFormat.whitebg }" title="預設背景色（清除高亮）"><i class="fa fa-square-o" style="color: var(--text-primary);"></i></button>
         <button @click="toggleFormat('red')" class="format-btn" :class="{ active: currentFormat.red }" title="紅色文字"><i class="fa fa-font" style="color: red;"></i></button>
         <button @click="toggleFormat('blue')" class="format-btn" :class="{ active: currentFormat.blue }" title="藍色文字"><i class="fa fa-font" style="color: blue;"></i></button>
-        <button @click="toggleFormat('black')" class="format-btn" :class="{ active: currentFormat.black }" title="黑色文字"><i class="fa fa-font" style="color: black;"></i></button>
+        <button @click="toggleFormat('black')" class="format-btn" :class="{ active: currentFormat.black }" title="預設文字顏色"><i class="fa fa-font" style="color: var(--text-primary);"></i></button>
         <button @click="addToTodo" class="action-btn" title="加入待辦"><i class="fa fa-plus"></i></button>
         <button @click="exitEditing" class="action-btn" title="退出編輯"><i class="fa fa-times"></i></button>
       </div>
@@ -1157,14 +1157,14 @@
             <li>高亮：將選中的文字設為黃色背景</li>
             <li>紅色文字：將選中的文字設為紅色</li>
             <li>藍色文字：將選中的文字設為藍色</li>
-            <li>黑色文字：將選中的文字設為黑色（可用於清除文字顏色）</li>
-            <li>白色背景：將選中的文字設為白色背景（可用於清除背景色）</li>
+            <li>預設字色：將選中的文字恢復為預設顏色（可用於清除紅、藍色）</li>
+            <li>預設背景：將選中的文字恢復為預設背景色（可用於清除高亮）</li>
             <li>加入待辦：將選中的文字加入待辦事項列表</li>
             <li>退出編輯：點擊 × 按鈕或點擊編輯區域外退出編輯模式</li>
           </ul>
           <li>所有更改會自動保存，下次打開應用時仍然可以看到。</li>
           <li>在編輯模式下，可以自由編輯、格式化文字，並將重要內容加入待辦事項。</li>
-          <li>提示：要清除文字的格式，可以將文字設為黑色並使用白色背景。</li>
+          <li>提示：要清除文字的格式，可以將文字設為預設字色並使用預設背景。</li>
         </ul>
         <h3>語言翻譯</h3>
         <ul>
@@ -1795,10 +1795,10 @@
                 span.style.color = 'blue';
                 break;
               case 'black':
-                span.style.color = 'black';
+                span.style.color = 'inherit';
                 break;
               case 'whitebg':
-                span.style.backgroundColor = 'white';
+                span.style.backgroundColor = 'transparent';
                 break;
             }
             span.textContent = selectedText;
@@ -1839,9 +1839,9 @@
             case 'blue':
               return element.style.color === 'blue';
             case 'black':
-              return element.style.color === 'black';
+              return element.style.color === 'inherit';
             case 'whitebg':
-              return element.style.backgroundColor === 'white';
+              return element.style.backgroundColor === 'transparent';
             default:
               return false;
           }
