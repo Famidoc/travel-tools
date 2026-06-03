@@ -826,6 +826,68 @@
       color: #0f172a !important;
       background-color: #fef08a !important; /* 使用稍暗柔和的黃色背景 */
     }
+
+    /* 行程選擇器與行程管理樣式 */
+    .trip-selector-container {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background-color: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 3px 8px;
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    
+    .trip-selector-container:focus-within {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+    }
+    
+    .trip-select {
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 2px 4px;
+      outline: none;
+      cursor: pointer;
+      max-width: 130px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .trip-select option {
+      background-color: var(--card-bg);
+      color: var(--text-primary);
+    }
+    
+    .trip-manage-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 14px;
+      cursor: pointer;
+      padding: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s, transform 0.2s;
+      outline: none;
+    }
+    
+    .trip-manage-btn:hover {
+      color: var(--primary-color);
+      transform: rotate(30deg);
+    }
+    
+    @media (max-width: 600px) {
+      .trip-select {
+        max-width: 90px;
+      }
+    }
   </style>
 </head>
 <body>  
@@ -833,6 +895,17 @@
     <!-- 頂部標題與主題切換欄 -->
     <div class="header-bar">
       <span class="app-title"><i class="fa fa-plane"></i> Travel Tools</span>
+      
+      <!-- 行程選擇器 -->
+      <div class="trip-selector-container">
+        <select :value="activeTripId" @change="selectTrip($event.target.value)" class="trip-select">
+          <option v-for="trip in trips" :key="trip.id" :value="trip.id">{{ trip.name }}</option>
+        </select>
+        <button @click="showTripManager = true" class="trip-manage-btn" title="行程管理">
+          <i class="fa fa-cogs"></i>
+        </button>
+      </div>
+
       <button @click="toggleDarkMode" class="theme-toggle-btn" :title="isDarkMode ? '切換為亮色模式' : '切換為深色模式'">
         <i :class="['fa', isDarkMode ? 'fa-sun-o' : 'fa-moon-o']"></i>
       </button>
@@ -1127,10 +1200,88 @@
         </ul>
       </div>
     </div>    
+    
+    <!-- 行程管理彈出窗口 -->
+    <div v-if="showTripManager" class="popup show" @click.self="showTripManager = false">
+      <div class="popup-content" style="max-width: 95%; width: 420px; box-sizing: border-box;">
+        <button class='w3-right' @click="showTripManager = false" style="background: transparent; border: none; font-size: 18px; cursor: pointer; color: var(--text-secondary);"><i class="fa fa-times" aria-hidden="true"></i></button>        
+        <h3 style="font-weight: bold; margin-top: 0; margin-bottom: 20px; color: var(--text-primary);"><i class="fa fa-cogs" style="margin-right: 8px;"></i>行程管理</h3>
+        
+        <!-- 行程列表 -->
+        <div class="trip-list" style="margin-bottom: 20px; max-height: 250px; overflow-y: auto; padding-right: 5px;">
+          <div v-for="trip in trips" :key="trip.id" 
+               style="display: flex; justify-content: space-between; align-items: center; padding: 12px; margin-bottom: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background-color: var(--bg-color); transition: all 0.2s;"
+               :style="trip.id === activeTripId ? 'border-color: var(--primary-color); background-color: rgba(59, 130, 246, 0.08); box-shadow: var(--shadow-sm);' : ''">
+            <div style="flex: 1; cursor: pointer; display: flex; align-items: center; min-width: 0;" @click="selectTripFromManager(trip.id)">
+              <i class="fa fa-map" style="margin-right: 10px; color: var(--primary-color); font-size: 14px; flex-shrink: 0;"></i>
+              <span style="font-weight: 700; font-size: 14px; color: var(--text-primary); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 180px;">{{ trip.name }}</span>
+              <span v-if="trip.id === activeTripId" style="margin-left: 8px; font-size: 11px; background-color: var(--primary-color); color: white; padding: 2px 8px; border-radius: 12px; font-weight: bold; flex-shrink: 0;">目前</span>
+            </div>
+            <div style="display: flex; gap: 8px; flex-shrink: 0;">
+              <button @click="renameTrip(trip)" style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer; padding: 6px; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: color 0.2s;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--text-secondary)'" title="重新命名">
+                <i class="fa fa-pencil"></i>
+              </button>
+              <button @click="deleteTrip(trip.id)" style="background: transparent; border: none; color: #ef4444; cursor: pointer; padding: 6px; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: opacity 0.2s;" :disabled="trips.length <= 1" :style="trips.length <= 1 ? 'opacity: 0.25; cursor: not-allowed;' : ''" title="刪除行程">
+                <i class="fa fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 新增行程 -->
+        <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+          <input v-model="newTripName" @keyup.enter="createTrip" type="text" placeholder="輸入新行程名稱..." 
+                 style="flex: 1; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); outline: none; background-color: var(--bg-color); color: var(--text-primary); font-size: 14px; box-sizing: border-box;">
+          <button @click="createTrip" style="background-color: var(--primary-color); border: none; border-radius: var(--radius-sm); padding: 10px 16px; color: white; font-weight: bold; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='var(--primary-hover)'" onmouseout="this.style.backgroundColor='var(--primary-color)'">
+            <i class="fa fa-plus"></i> 新增
+          </button>
+        </div>
+        
+        <div style="text-align: right; border-top: 1px solid var(--border-color); padding-top: 15px;">
+          <button @click="showTripManager = false" class="close-btn" style="padding: 8px 24px;">關閉</button>
+        </div>
+      </div>
+    </div>
   </div>
   <script>
     const app = Vue.createApp({      
       data() {
+        // --- 舊資料無縫遷移與多行程初始化邏輯 ---
+        let savedTrips = null;
+        try {
+          savedTrips = JSON.parse(localStorage.getItem('travel_trips'));
+        } catch (e) {}
+        
+        let activeTripId = localStorage.getItem('active_trip_id') || '';
+        
+        if (!savedTrips || !Array.isArray(savedTrips) || savedTrips.length === 0) {
+          const legacyItinerary = localStorage.getItem('itinerary') || '';
+          let legacyTodos = [];
+          try {
+            legacyTodos = JSON.parse(localStorage.getItem('todos') || '[]');
+          } catch (e) {}
+          
+          const defaultTrip = {
+            id: 'trip_default',
+            name: '我的旅行行程',
+            itineraryText: legacyItinerary,
+            todos: legacyTodos
+          };
+          savedTrips = [defaultTrip];
+          activeTripId = 'trip_default';
+          
+          localStorage.setItem('travel_trips', JSON.stringify(savedTrips));
+          localStorage.setItem('active_trip_id', activeTripId);
+        }
+        
+        let currentTrip = savedTrips.find(t => t.id === activeTripId);
+        if (!currentTrip) {
+          currentTrip = savedTrips[0];
+          activeTripId = currentTrip.id;
+          localStorage.setItem('active_trip_id', activeTripId);
+        }
+        // ----------------------------------------
+
         return {
           isDarkMode: false,
           display: '',
@@ -1171,10 +1322,9 @@
             { value: 'Europe/London', label: '倫敦' },
             { value: 'Australia/Sydney', label: '雪梨' },
             { value: 'Europe/Paris', label: '巴黎' },            
-              // 可以根據需要添加更多時區
           ],
           newTodo: '',
-          todos: JSON.parse(localStorage.getItem('todos') || '[]'),
+          todos: currentTrip.todos || [],
           showEditPopup: false,
           editingText: '',
           editingIndex: -1,
@@ -1195,7 +1345,7 @@
             { code: 'id', name: 'Bahasa Indonesia' },
             { code: 'ms', name: 'Bahasa Melayu' }
           ],
-          itineraryText: localStorage.getItem('itinerary') || '',
+          itineraryText: currentTrip.itineraryText || '',
           currentFormat: {
             bold: false,
             highlight: false,
@@ -1207,6 +1357,12 @@
           selectedText: '',
           currentRange: null,
           isEditing: false,
+          
+          // --- 多行程管理狀態 ---
+          trips: savedTrips,
+          activeTripId: activeTripId,
+          newTripName: '',
+          showTripManager: false
         }
       },
       computed: {
@@ -1770,6 +1926,10 @@
         },
         exportData() {
           const dataToExport = {
+            version: '2.0',
+            activeTripId: this.activeTripId,
+            trips: this.trips,
+            // 兼容舊版：
             itinerary: this.itineraryText,
             todos: this.todos
           };
@@ -1798,25 +1958,59 @@
             try {
               const importedData = JSON.parse(e.target.result);
 
-              // Basic validation
-              if (typeof importedData.itinerary !== 'string' || !Array.isArray(importedData.todos)) {
+              // 檢查是不是 2.0 格式（有多行程）
+              if (importedData.version === '2.0' && Array.isArray(importedData.trips)) {
+                if (confirm('偵測到多行程備份檔案。這將會「覆蓋」您現有的所有行程列表，是否繼續？')) {
+                  this.trips = importedData.trips;
+                  this.activeTripId = importedData.activeTripId || this.trips[0].id;
+                  
+                  // 載入當前行程
+                  const trip = this.trips.find(t => t.id === this.activeTripId) || this.trips[0];
+                  this.activeTripId = trip.id;
+                  this.todos = trip.todos || [];
+                  this.itineraryText = trip.itineraryText || '';
+                  
+                  localStorage.setItem('travel_trips', JSON.stringify(this.trips));
+                  localStorage.setItem('active_trip_id', this.activeTripId);
+                  
+                  this.$nextTick(() => {
+                    const contentDiv = document.querySelector('.itinerary-textarea');
+                    if (contentDiv) {
+                      contentDiv.innerHTML = this.itineraryText;
+                    }
+                  });
+                  alert('所有行程資料匯入成功！');
+                }
+              } 
+              // 舊版單行程格式
+              else if (typeof importedData.itinerary === 'string' && Array.isArray(importedData.todos)) {
+                if (confirm('偵測到舊版單行程資料。要將其「新增」為一個新行程，還是「覆蓋」目前選取的行程？\n\n[確定]：新增為新行程\n[取消]：覆蓋目前行程')) {
+                  // 新增為新行程
+                  const newTrip = {
+                    id: 'trip_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                    name: '匯入的行程_' + new Date().toLocaleDateString(),
+                    itineraryText: importedData.itinerary,
+                    todos: importedData.todos
+                  };
+                  this.trips.push(newTrip);
+                  this.selectTrip(newTrip.id);
+                  alert('已成功將資料新增為新行程！');
+                } else {
+                  // 覆蓋目前選取行程
+                  this.itineraryText = importedData.itinerary;
+                  this.todos = importedData.todos;
+                  this.saveCurrentTripData();
+                  
+                  this.$nextTick(() => {
+                    const contentDiv = document.querySelector('.itinerary-textarea');
+                    if (contentDiv) {
+                      contentDiv.innerHTML = this.itineraryText;
+                    }
+                  });
+                  alert('當前行程資料已覆蓋！');
+                }
+              } else {
                 throw new Error('Invalid file format.');
-              }
-
-              if (confirm('確定要匯入資料嗎？這將會覆蓋您目前的行程與待辦事項。')) {
-                // Update data
-                this.itineraryText = importedData.itinerary;
-                this.todos = importedData.todos;
-
-                // Force update for itinerary display
-                this.$nextTick(() => {
-                  const contentDiv = document.querySelector('.itinerary-textarea');
-                  if (contentDiv) {
-                    contentDiv.innerHTML = this.itineraryText;
-                  }
-                });
-                
-                alert('資料匯入成功！');
               }
             } catch (error) {
               alert('匯入失敗：無效的檔案格式或內容已損毀。');
@@ -1827,6 +2021,103 @@
             }
           };
           reader.readAsText(file);
+        },
+        // --- 多行程管理相關方法 ---
+        saveCurrentTripData() {
+          const trip = this.trips.find(t => t.id === this.activeTripId);
+          if (trip) {
+            trip.todos = this.todos;
+            trip.itineraryText = this.itineraryText;
+            localStorage.setItem('travel_trips', JSON.stringify(this.trips));
+          }
+        },
+        selectTrip(tripId) {
+          if (tripId === this.activeTripId) return;
+          // 保存當前行程的最新狀態
+          this.saveCurrentTripData();
+          
+          // 切換 ID
+          this.activeTripId = tripId;
+          localStorage.setItem('active_trip_id', tripId);
+          
+          // 載入新行程資料
+          const trip = this.trips.find(t => t.id === tripId);
+          if (trip) {
+            this.todos = trip.todos || [];
+            this.itineraryText = trip.itineraryText || '';
+            
+            // 同步更新編輯區內容
+            this.$nextTick(() => {
+              const contentDiv = document.querySelector('.itinerary-textarea');
+              if (contentDiv) {
+                contentDiv.innerHTML = this.itineraryText;
+              }
+            });
+          }
+        },
+        selectTripFromManager(tripId) {
+          this.selectTrip(tripId);
+          this.showTripManager = false; // 選定後關閉管理視窗
+        },
+        createTrip() {
+          const name = this.newTripName.trim();
+          if (!name) {
+            alert('請輸入行程名稱');
+            return;
+          }
+          // 保存當前行程的最新狀態
+          this.saveCurrentTripData();
+          
+          const newTrip = {
+            id: 'trip_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+            name: name,
+            itineraryText: '',
+            todos: []
+          };
+          this.trips.push(newTrip);
+          this.newTripName = '';
+          
+          // 切換到新行程
+          this.selectTrip(newTrip.id);
+          this.showTripManager = false;
+        },
+        renameTrip(trip) {
+          const newName = prompt('請輸入新的行程名稱', trip.name);
+          if (newName !== null && newName.trim()) {
+            trip.name = newName.trim();
+            localStorage.setItem('travel_trips', JSON.stringify(this.trips));
+          }
+        },
+        deleteTrip(tripId) {
+          if (this.trips.length <= 1) {
+            alert('至少必須保留一個行程');
+            return;
+          }
+          if (confirm('確定要刪除此行程嗎？刪除後將無法還原資料！')) {
+            const index = this.trips.findIndex(t => t.id === tripId);
+            if (index > -1) {
+              this.trips.splice(index, 1);
+              localStorage.setItem('travel_trips', JSON.stringify(this.trips));
+              
+              // 如果刪除的是當前行程，則需要切換到其他行程
+              if (this.activeTripId === tripId) {
+                const nextTripId = this.trips[0].id;
+                this.activeTripId = nextTripId;
+                localStorage.setItem('active_trip_id', nextTripId);
+                
+                const nextTrip = this.trips[0];
+                this.todos = nextTrip.todos || [];
+                this.itineraryText = nextTrip.itineraryText || '';
+                
+                this.$nextTick(() => {
+                  const contentDiv = document.querySelector('.itinerary-textarea');
+                  if (contentDiv) {
+                    contentDiv.innerHTML = this.itineraryText;
+                  }
+                });
+              }
+            }
+          }
         },
         initSortable() {
           const el = document.querySelector('.todo-list');
@@ -1884,13 +2175,13 @@
         },
         todos: {
           handler() {
-            this.saveTodos();
+            this.saveCurrentTripData();
           },
           deep: true
         },
         itineraryText: {
           handler(newVal) {
-            localStorage.setItem('itinerary', newVal);
+            this.saveCurrentTripData();
           }
         },
         activeTab(newTab) {
