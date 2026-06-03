@@ -757,11 +757,28 @@
 
     /* 手機與窄螢幕 (RWD) 額外優化 */
     @media (max-width: 600px) {
+      #app {
+        padding: 10px 6px;
+      }
       .tabs {
         margin: 5px auto 15px auto;
       }
       .tabs button {
         justify-content: flex-start;
+      }
+      /* 手機版行程分頁寬度與間距優化，最大化文字展示空間 */
+      .itinerary {
+        width: 100% !important;
+        margin: 0 auto 10px auto !important;
+        padding: 10px !important;
+        border-radius: 8px !important;
+        height: calc(100vh - 165px) !important;
+      }
+      .itinerary-actions {
+        margin-bottom: 8px !important;
+      }
+      .itinerary-textarea {
+        padding: 10px 8px !important;
       }
     }
       
