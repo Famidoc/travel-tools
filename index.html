@@ -1804,35 +1804,67 @@
             // 智慧型清除特定格式邏輯 (適用局部或全部選取，不殘留冗餘標籤)
             const fragment = range.extractContents();
             
-            const cleanStyles = (node) => {
-              if (node.nodeType === 1) { // Element node
-                if (node.tagName === 'SPAN') {
+            // 1. 處理 fragment 內部嵌套的子節點
+            const elements = fragment.querySelectorAll('span, font');
+            elements.forEach(el => {
+              if (format === 'whitebg') {
+                el.style.removeProperty('background-color');
+                el.classList.remove('highlight');
+              } else if (format === 'black') {
+                el.style.removeProperty('color');
+                if (el.tagName === 'FONT') {
+                  el.removeAttribute('color');
+                }
+              }
+              
+              // 智慧解構無樣式與無類別的標籤
+              const isRedundantFont = el.tagName === 'FONT' && !el.hasAttribute('color');
+              const isRedundantSpan = el.tagName === 'SPAN' && 
+                                      (!el.style.cssText || el.style.cssText.trim() === '') && 
+                                      (!el.className || el.className.trim() === '');
+              
+              if (isRedundantFont || isRedundantSpan) {
+                const parent = el.parentNode;
+                if (parent) {
+                  while (el.firstChild) {
+                    parent.insertBefore(el.firstChild, el);
+                  }
+                  parent.removeChild(el);
+                }
+              }
+            });
+            
+            // 2. 處理 fragment 最外層的直接子節點 (querySelectorAll 不會包含最外層元素本身)
+            Array.from(fragment.childNodes).forEach(el => {
+              if (el.nodeType === 1) { // Element node
+                if (el.tagName === 'SPAN' || el.tagName === 'FONT') {
                   if (format === 'whitebg') {
-                    node.style.removeProperty('background-color');
+                    el.style.removeProperty('background-color');
+                    el.classList.remove('highlight');
                   } else if (format === 'black') {
-                    node.style.removeProperty('color');
+                    el.style.removeProperty('color');
+                    if (el.tagName === 'FONT') {
+                      el.removeAttribute('color');
+                    }
                   }
                   
-                  // 如果 span 已經沒有任何樣式了，將其內容提取出來，避免殘留空標籤
-                  if (!node.style.cssText || node.style.cssText.trim() === '') {
-                    const parent = node.parentNode;
+                  const isRedundantFont = el.tagName === 'FONT' && !el.hasAttribute('color');
+                  const isRedundantSpan = el.tagName === 'SPAN' && 
+                                          (!el.style.cssText || el.style.cssText.trim() === '') && 
+                                          (!el.className || el.className.trim() === '');
+                  
+                  if (isRedundantFont || isRedundantSpan) {
+                    const parent = el.parentNode;
                     if (parent) {
-                      while (node.firstChild) {
-                        parent.insertBefore(node.firstChild, node);
+                      while (el.firstChild) {
+                        parent.insertBefore(el.firstChild, el);
                       }
-                      parent.removeChild(node);
+                      parent.removeChild(el);
                     }
                   }
                 }
-                // 遞迴處理子節點
-                if (node.parentNode) { // 確保節點還在 DOM 樹中
-                  Array.from(node.childNodes).forEach(cleanStyles);
-                }
               }
-            };
-            
-            // 清理片段中的所有節點
-            Array.from(fragment.childNodes).forEach(cleanStyles);
+            });
             
             // 插入處理後的片段
             range.insertNode(fragment);
