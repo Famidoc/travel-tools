@@ -914,6 +914,282 @@
       }
     }
 
+    /* 旅遊記帳專屬樣式 */
+    .expense-add-card, .expense-summary-card, .expense-list-card {
+      background-color: var(--card-bg, #ffffff);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    
+    .dark .expense-add-card, .dark .expense-summary-card, .dark .expense-list-card {
+      background-color: #1e293b;
+      border-color: #334155;
+    }
+    
+    .section-title {
+      font-size: 15px;
+      font-weight: bold;
+      margin-top: 0;
+      margin-bottom: 15px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .expense-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .form-row {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    
+    .flex-1 { flex: 1; min-width: 0; }
+    .flex-2 { flex: 2; min-width: 0; }
+    
+    .form-group label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    
+    .expense-input, .expense-select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px 12px !important;
+      font-size: 14px !important;
+      height: 38px;
+    }
+    
+    .currency-conversion-preview {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--primary-color);
+      background-color: rgba(59, 130, 246, 0.08);
+      padding: 8px 12px;
+      border-radius: var(--radius-md);
+      width: 100%;
+    }
+    
+    .expense-add-btn {
+      width: 100%;
+      padding: 10px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .expense-add-btn:hover {
+      background-color: var(--primary-hover);
+    }
+    
+    /* 帳目總結摘要 */
+    .summary-total {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 15px 0;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 15px;
+    }
+    
+    .dark .summary-total {
+      border-bottom-color: #334155;
+    }
+    
+    .summary-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 5px;
+    }
+    
+    .summary-value {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--primary-color);
+    }
+    
+    .category-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .category-bar-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .category-bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+    
+    .category-bar-bg {
+      height: 8px;
+      background-color: var(--bg-hover, #f1f5f9);
+      border-radius: 4px;
+      overflow: hidden;
+      width: 100%;
+    }
+    
+    .dark .category-bar-bg {
+      background-color: #334155;
+    }
+    
+    .category-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+    
+    /* 帳目列表 */
+    .expense-list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .expense-list-header .section-title {
+      margin-bottom: 0;
+    }
+    
+    .expense-clear-all-btn {
+      background: none;
+      border: none;
+      color: #ef4444;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+    
+    .expense-clear-all-btn:hover {
+      background-color: rgba(239, 68, 68, 0.08);
+    }
+    
+    .expense-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 350px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+    
+    .expense-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      background-color: var(--bg-hover, #f8fafc);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      gap: 12px;
+    }
+    
+    .dark .expense-item {
+      background-color: #334155;
+      border-color: #475569;
+    }
+    
+    .expense-item-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    
+    .expense-item-info {
+      flex-grow: 1;
+      min-width: 0;
+    }
+    
+    .expense-item-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .expense-item-meta {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    
+    .expense-item-price {
+      text-align: right;
+      flex-shrink: 0;
+    }
+    
+    .price-converted {
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--text-primary);
+    }
+    
+    .price-original {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    
+    .expense-delete-btn {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 4px;
+      transition: color 0.2s;
+    }
+    
+    .expense-delete-btn:hover {
+      color: #ef4444;
+    }
+    
+    .expense-empty {
+      text-align: center;
+      padding: 30px 0;
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+
     /* 彈出視窗與對話框 */
     .popup, .instructions-popup, .edit-popup {
       position: fixed;
@@ -1196,6 +1472,7 @@
       <button @click="activeTab = 'exchange'" :class="{ active: activeTab === 'exchange' }"><i class="fa fa-exchange" aria-hidden="true"></i></button>
       <button @click="activeTab = 'timezone'" :class="{ active: activeTab === 'timezone' }"><i class="fa fa-clock-o" aria-hidden="true"></i></button>
       <button @click="activeTab = 'translate'" :class="{ active: activeTab === 'translate' }"><i class="fa fa-language" aria-hidden="true"></i></button>
+      <button @click="activeTab = 'expenses'" :class="{ active: activeTab === 'expenses' }" title="旅遊記帳"><i class="fa fa-money" aria-hidden="true"></i></button>
       <button @click="activeTab = 'data'" :class="{ active: activeTab === 'data' }" title="資料管理"><i class="fa fa-cog" aria-hidden="true"></i></button>
       <button @click="showInstructions" title="使用說明">
         <i class="fa fa-question-circle" aria-hidden="true"></i>
@@ -1408,6 +1685,112 @@
         </div>
       </div>
     </div>
+    
+    <div v-if="activeTab === 'expenses'" class="expenses">
+      <h4 class="w3-center" style="font-weight: bold;">【 旅遊記帳 】</h4>
+      
+      <!-- 1. 新增帳目卡片 -->
+      <div class="expense-add-card">
+        <h5 class="section-title"><i class="fa fa-plus-circle" style="color: var(--primary-color);"></i> 新增消費紀錄</h5>
+        <div class="expense-form">
+          <div class="form-row">
+            <div class="form-group flex-2">
+              <label>消費品項/備註</label>
+              <input type="text" v-model="newExpense.remark" placeholder="例如：晚餐拉麵、藥妝店購物" class="expense-input">
+            </div>
+            <div class="form-group flex-1">
+              <label>消費類別</label>
+              <select v-model="newExpense.category" class="expense-select">
+                <option value="餐飲">🍔 餐飲</option>
+                <option value="購物">🛍️ 購物</option>
+                <option value="交通">🚌 交通</option>
+                <option value="住宿">🏨 住宿</option>
+                <option value="門票">🎫 門票</option>
+                <option value="紀念品">🎁 紀念品</option>
+                <option value="其他">🚑 其他</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group flex-2">
+              <label>消費金額</label>
+              <input type="number" v-model.number="newExpense.amount" placeholder="輸入金額" class="expense-input" min="0">
+            </div>
+            <div class="form-group flex-1">
+              <label>幣別</label>
+              <select v-model="newExpense.currency" class="expense-select">
+                <option v-for="curr in currencies" :key="curr.code" :value="curr.code">{{ curr.code }} ({{ curr.name }})</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-row" v-if="newExpense.currency !== 'TWD'">
+            <div class="currency-conversion-preview">
+              <i class="fa fa-info-circle"></i>
+              <span>即時匯率換算：<b>{{ formatConvertedAmount }}</b> TWD</span>
+            </div>
+          </div>
+          
+          <button @click="addExpense" class="expense-add-btn"><i class="fa fa-plus"></i> 新增此筆記帳</button>
+        </div>
+      </div>
+
+      <!-- 2. 帳目總結摘要 -->
+      <div class="expense-summary-card" v-if="expenses.length > 0">
+        <div class="summary-total">
+          <span class="summary-label">折合台幣總花費</span>
+          <span class="summary-value">NT$ {{ formatTotalExpenses }}</span>
+        </div>
+        
+        <!-- 類別花費比例條 -->
+        <div class="category-bars">
+          <div class="category-bar-item" v-for="stat in categoryStats" :key="stat.name">
+            <div class="category-bar-label">
+              <span>{{ stat.icon }} {{ stat.name }}</span>
+              <span>NT$ {{ stat.amount }} ({{ stat.percent }}%)</span>
+            </div>
+            <div class="category-bar-bg">
+              <div class="category-bar-fill" :style="{ width: stat.percent + '%', backgroundColor: stat.color }"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. 帳目列表 -->
+      <div class="expense-list-card">
+        <div class="expense-list-header">
+          <h5 class="section-title"><i class="fa fa-list" style="color: var(--primary-color);"></i> 消費明細列表 ({{ expenses.length }} 筆)</h5>
+          <button @click="clearAllExpenses" class="expense-clear-all-btn" v-if="expenses.length > 0"><i class="fa fa-trash"></i> 全部清空</button>
+        </div>
+        
+        <div class="expense-list" v-if="expenses.length > 0">
+          <div class="expense-item" v-for="(item, index) in expenses" :key="index">
+            <div class="expense-item-icon" :style="{ backgroundColor: getCategoryColor(item.category), color: 'white' }">
+              {{ getCategoryIcon(item.category) }}
+            </div>
+            <div class="expense-item-info">
+              <div class="expense-item-title">{{ item.remark || item.category }}</div>
+              <div class="expense-item-meta">{{ item.date }} · {{ item.category }}</div>
+            </div>
+            <div class="expense-item-price">
+              <div class="price-converted">NT$ {{ Math.round(item.convertedAmount) }}</div>
+              <div class="price-original" v-if="item.currency !== 'TWD'">
+                {{ item.amount }} {{ item.currency }}
+              </div>
+            </div>
+            <button @click="deleteExpense(index)" class="expense-delete-btn" title="刪除這筆">
+              <i class="fa fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <div class="expense-empty" v-else>
+          <i class="fa fa-money" style="font-size: 40px; color: var(--text-secondary); margin-bottom: 10px; display: block;"></i>
+          <span>目前尚無任何記帳紀錄，趕快記下您的第一筆消費吧！</span>
+        </div>
+      </div>
+    </div>
+
     <div v-if="activeTab === 'data'" class="data-management">
         <h4 class="w3-center" style="font-weight: bold;">【 資料管理 】</h4>
         <p style="text-align: left;">
@@ -1678,6 +2061,8 @@
             { code: 'ms', name: 'Bahasa Melayu' }
           ],
           itineraryText: currentTrip.itineraryText || '',
+          expenses: currentTrip.expenses || [],
+          newExpense: { remark: '', category: '餐飲', amount: null, currency: 'TWD' },
           currentFormat: {
             bold: false,
             highlight: false,
@@ -1755,6 +2140,51 @@
         },
         currentTemplates() {
           return this.templateCategories[this.activeTemplateCat].items;
+        },
+        formatConvertedAmount() {
+          return Math.round(this.getConvertedAmount(this.newExpense.amount, this.newExpense.currency));
+        },
+        formatTotalExpenses() {
+          const total = this.expenses.reduce((sum, item) => sum + (item.convertedAmount || 0), 0);
+          return Math.round(total).toLocaleString();
+        },
+        categoryStats() {
+          const total = this.expenses.reduce((sum, item) => sum + (item.convertedAmount || 0), 0);
+          if (total === 0) return [];
+          
+          const cats = {
+            '餐飲': { icon: '🍔', color: '#f59e0b', amount: 0 },
+            '購物': { icon: '🛍️', color: '#ec4899', amount: 0 },
+            '交通': { icon: '🚌', color: '#3b82f6', amount: 0 },
+            '住宿': { icon: '🏨', color: '#8b5cf6', amount: 0 },
+            '門票': { icon: '🎫', color: '#10b981', amount: 0 },
+            '紀念品': { icon: '🎁', color: '#f43f5e', amount: 0 },
+            '其他': { icon: '🚑', color: '#64748b', amount: 0 }
+          };
+          
+          this.expenses.forEach(item => {
+            const catName = item.category || '其他';
+            if (cats[catName]) {
+              cats[catName].amount += (item.convertedAmount || 0);
+            } else {
+              cats['其他'].amount += (item.convertedAmount || 0);
+            }
+          });
+          
+          return Object.keys(cats)
+            .map(name => {
+              const amt = Math.round(cats[name].amount);
+              const percent = total > 0 ? Math.round((cats[name].amount / total) * 100) : 0;
+              return {
+                name,
+                icon: cats[name].icon,
+                color: cats[name].color,
+                amount: amt,
+                percent: percent
+              };
+            })
+            .filter(item => item.amount > 0)
+            .sort((a, b) => b.amount - a.amount);
         }
       },
       methods: {
@@ -2074,6 +2504,92 @@
         },
         toggleDropdown(type) {
           this.activeDropdown = this.activeDropdown === type ? null : type;
+        },
+
+        // --- 旅遊記帳相關方法 ---
+        getConvertedAmount(amount, currency) {
+          if (!amount || isNaN(amount)) return 0;
+          if (currency === 'TWD') return amount;
+          
+          const fromRate = this.exchangeRates[currency];
+          const toRate = this.exchangeRates['TWD'];
+          if (fromRate && toRate) {
+            return (amount / fromRate) * toRate;
+          }
+          
+          // Fallback 常用匯率
+          const fallbackRatesToTwd = {
+            'USD': 32.5,
+            'EUR': 35.0,
+            'JPY': 0.21,
+            'GBP': 41.5,
+            'CNY': 4.5,
+            'VND': 0.0013
+          };
+          const rate = fallbackRatesToTwd[currency];
+          if (rate) return amount * rate;
+          return amount;
+        },
+        addExpense() {
+          if (!this.newExpense.amount || isNaN(this.newExpense.amount) || this.newExpense.amount <= 0) {
+            alert('請輸入有效的消費金額');
+            return;
+          }
+          const converted = this.getConvertedAmount(this.newExpense.amount, this.newExpense.currency);
+          const now = new Date();
+          const dateStr = `${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+          
+          const item = {
+            remark: this.newExpense.remark.trim(),
+            category: this.newExpense.category,
+            amount: this.newExpense.amount,
+            currency: this.newExpense.currency,
+            convertedAmount: converted,
+            date: dateStr
+          };
+          
+          this.expenses.unshift(item);
+          this.saveCurrentTripData();
+          
+          // 重置輸入，保留類別與幣別便於連續記帳
+          this.newExpense.remark = '';
+          this.newExpense.amount = null;
+        },
+        deleteExpense(index) {
+          if (confirm('確定要刪除這筆記帳紀錄嗎？')) {
+            this.expenses.splice(index, 1);
+            this.saveCurrentTripData();
+          }
+        },
+        clearAllExpenses() {
+          if (confirm('確定要清空目前行程的所有記帳紀錄嗎？此動作無法復原！')) {
+            this.expenses = [];
+            this.saveCurrentTripData();
+          }
+        },
+        getCategoryColor(category) {
+          const colors = {
+            '餐飲': '#f59e0b',
+            '購物': '#ec4899',
+            '交通': '#3b82f6',
+            '住宿': '#8b5cf6',
+            '門票': '#10b981',
+            '紀念品': '#f43f5e',
+            '其他': '#64748b'
+          };
+          return colors[category] || '#64748b';
+        },
+        getCategoryIcon(category) {
+          const icons = {
+            '餐飲': '🍔',
+            '購物': '🛍️',
+            '交通': '🚌',
+            '住宿': '🏨',
+            '門票': '🎫',
+            '紀念品': '🎁',
+            '其他': '🚑'
+          };
+          return icons[category] || '🚑';
         },
 
         swapLanguages() {
@@ -2613,7 +3129,8 @@ ${this.sourceText}
                     id: 'trip_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                     name: '匯入的行程_' + new Date().toLocaleDateString(),
                     itineraryText: importedData.itinerary,
-                    todos: importedData.todos
+                    todos: importedData.todos,
+                    expenses: []
                   };
                   this.trips.push(newTrip);
                   this.selectTrip(newTrip.id);
@@ -2622,6 +3139,7 @@ ${this.sourceText}
                   // 覆蓋目前選取行程
                   this.itineraryText = importedData.itinerary;
                   this.todos = importedData.todos;
+                  this.expenses = [];
                   this.saveCurrentTripData();
                   
                   this.$nextTick(() => {
@@ -2651,6 +3169,7 @@ ${this.sourceText}
           if (trip) {
             trip.todos = this.todos;
             trip.itineraryText = this.itineraryText;
+            trip.expenses = this.expenses;
             localStorage.setItem('travel_trips', JSON.stringify(this.trips));
           }
         },
@@ -2668,6 +3187,7 @@ ${this.sourceText}
           if (trip) {
             this.todos = trip.todos || [];
             this.itineraryText = trip.itineraryText || '';
+            this.expenses = trip.expenses || [];
             
             // 同步更新編輯區內容
             this.$nextTick(() => {
@@ -2695,7 +3215,8 @@ ${this.sourceText}
             id: 'trip_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
             name: name,
             itineraryText: '',
-            todos: []
+            todos: [],
+            expenses: []
           };
           this.trips.push(newTrip);
           this.newTripName = '';
@@ -2797,6 +3318,12 @@ ${this.sourceText}
           this.convertTime();
         },
         todos: {
+          handler() {
+            this.saveCurrentTripData();
+          },
+          deep: true
+        },
+        expenses: {
           handler() {
             this.saveCurrentTripData();
           },
