@@ -914,6 +914,387 @@
       }
     }
 
+    /* --- 記帳圖表額外樣式 --- */
+    .expense-chart-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 15px 0;
+      width: 100%;
+    }
+    
+    #expenseChart {
+      display: block;
+      max-width: 100%;
+    }
+
+    /* --- 出國倒數飛機卡樣式 --- */
+    .countdown-card {
+      background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 50%, #4facfe 100%);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-md);
+      color: white;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .countdown-card::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
+      pointer-events: none;
+    }
+
+    .countdown-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .countdown-title {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-transform: uppercase;
+    }
+
+    .countdown-set-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .countdown-set-btn:hover {
+      background: rgba(255, 255, 255, 0.35);
+    }
+
+    .departure-date-picker {
+      background: rgba(15, 23, 42, 0.4);
+      padding: 12px;
+      border-radius: var(--radius-md);
+      margin-bottom: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      backdrop-filter: blur(8px);
+    }
+
+    .departure-input {
+      background: rgba(255, 255, 255, 0.9) !important;
+      color: #0f172a !important;
+      border: none !important;
+      border-radius: 6px !important;
+      padding: 8px 12px !important;
+      font-size: 13px !important;
+      height: 36px;
+    }
+
+    .picker-buttons {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .picker-btn {
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .picker-btn.save {
+      background-color: #10b981;
+      color: white;
+    }
+    
+    .picker-btn.save:hover {
+      background-color: #059669;
+    }
+
+    .picker-btn.clear {
+      background-color: #ef4444;
+      color: white;
+    }
+    
+    .picker-btn.clear:hover {
+      background-color: #dc2626;
+    }
+
+    .countdown-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .countdown-timer {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      font-family: monospace, sans-serif;
+    }
+
+    .timer-days, .timer-hours, .timer-mins, .timer-secs {
+      font-size: 26px;
+      font-weight: 800;
+    }
+    
+    .timer-unit {
+      font-size: 11px;
+      opacity: 0.9;
+      margin-right: 4px;
+      font-weight: bold;
+    }
+
+    .countdown-passed {
+      font-size: 18px;
+      font-weight: 700;
+      text-align: center;
+      padding: 10px 0;
+    }
+
+    .countdown-empty {
+      text-align: center;
+      font-size: 12px;
+      padding: 15px 0;
+      opacity: 0.9;
+      font-weight: 500;
+    }
+
+    /* 跑道飛機動畫進度條 */
+    .flight-progress-bar {
+      position: relative;
+      width: 100%;
+      height: 24px;
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+    }
+
+    .flight-track {
+      position: absolute;
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 2px;
+    }
+
+    .flight-progress {
+      position: absolute;
+      height: 4px;
+      background: white;
+      border-radius: 2px;
+    }
+
+    .flight-icon {
+      position: absolute;
+      color: white;
+      font-size: 16px;
+      transform: translate(-50%, -2px) rotate(90deg); /* 讓飛機朝右飛 */
+      transition: left 0.5s ease-out;
+      filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
+    }
+
+    /* --- 世界時鐘樣式 --- */
+    .world-clock-section {
+      margin-top: 20px;
+      background-color: var(--card-bg, #ffffff);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+    }
+    
+    .dark .world-clock-section {
+      background-color: #1e293b;
+      border-color: #334155;
+    }
+
+    .world-clock-title {
+      font-size: 15px;
+      font-weight: bold;
+      margin-top: 0;
+      margin-bottom: 15px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .world-clock-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    
+    @media (max-width: 400px) {
+      .world-clock-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .world-clock-card {
+      background-color: var(--bg-hover, #f8fafc);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: border-color 0.2s;
+    }
+    
+    .dark .world-clock-card {
+      background-color: #334155;
+      border-color: #475569;
+    }
+
+    .world-clock-card:hover {
+      border-color: var(--primary-color);
+    }
+
+    .city-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .city-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .city-time-diff {
+      font-size: 10px;
+      color: var(--text-secondary);
+    }
+
+    .city-time-section {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .city-time {
+      font-size: 15px;
+      font-weight: 700;
+      font-family: monospace;
+      color: var(--text-primary);
+    }
+
+    .city-period-icon {
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .text-yellow { color: #f59e0b; }
+    .text-blue { color: #3b82f6; }
+
+    /* --- 自訂常用語對話庫樣式 --- */
+    .custom-template-add {
+      background-color: var(--bg-hover, #f8fafc);
+      border: 1px dashed var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-top: 12px;
+    }
+    
+    .dark .custom-template-add {
+      background-color: #334155;
+      border-color: #475569;
+    }
+
+    .custom-template-inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .custom-input-field {
+      width: 100%;
+      padding: 8px 12px !important;
+      font-size: 13px !important;
+      height: 36px;
+      background-color: var(--bg-color);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+    }
+
+    .custom-add-btn {
+      width: 100%;
+      padding: 8px;
+      background-color: #10b981;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .custom-add-btn:hover {
+      background-color: #059669;
+    }
+
+    /* 氣泡刪除封裝 */
+    .template-bubble-wrapper {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+    }
+
+    .template-bubble-delete {
+      position: absolute;
+      right: 8px;
+      top: 8px;
+      background: rgba(239, 68, 68, 0.1);
+      border: none;
+      color: #ef4444;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      z-index: 10;
+    }
+
+    .template-bubble-delete:hover {
+      background-color: #ef4444;
+      color: white;
+      transform: scale(1.1);
+    }
+
     /* 旅遊記帳專屬樣式 */
     .expense-add-card, .expense-summary-card, .expense-list-card {
       background-color: var(--card-bg, #ffffff);
@@ -1480,6 +1861,46 @@
     </div>
     <div v-if="activeTab === 'itinerary'" class="itinerary">
       <h4 class="w3-center" style="font-weight: bold;">【 行程資料 】</h4>
+      
+      <!-- 出國倒數儀式卡 -->
+      <div class="countdown-card">
+        <div class="countdown-header">
+          <span class="countdown-title"><i class="fa fa-plane"></i> 旅程出發倒數</span>
+          <button @click="showDepartureDatePicker = !showDepartureDatePicker" class="countdown-set-btn">
+            <i class="fa fa-calendar"></i> {{ departureDate ? '修改出發日' : '設定出發日' }}
+          </button>
+        </div>
+        
+        <!-- 出發日選擇器折疊區 -->
+        <div v-show="showDepartureDatePicker" class="departure-date-picker">
+          <input type="datetime-local" v-model="tempDepartureDate" class="departure-input">
+          <div class="picker-buttons">
+            <button @click="saveDepartureDate" class="picker-btn save">保存</button>
+            <button @click="clearDepartureDate" class="picker-btn clear" v-if="departureDate">清除</button>
+          </div>
+        </div>
+        
+        <div class="countdown-content" v-if="departureDate">
+          <div class="countdown-timer" v-if="countdownText">
+            <span class="timer-days">{{ countdownText.days }}</span><span class="timer-unit">天</span>
+            <span class="timer-hours">{{ countdownText.hours }}</span><span class="timer-unit">時</span>
+            <span class="timer-mins">{{ countdownText.mins }}</span><span class="timer-unit">分</span>
+            <span class="timer-secs">{{ countdownText.secs }}</span><span class="timer-unit">秒</span>
+          </div>
+          <div class="countdown-passed" v-else>
+            🎉 祝您旅途愉快！出發旅行囉！
+          </div>
+          <div class="flight-progress-bar" v-if="countdownText">
+            <div class="flight-track"></div>
+            <div class="flight-progress" :style="{ width: flightProgressPercent + '%' }"></div>
+            <i class="fa fa-plane flight-icon" :style="{ left: flightProgressPercent + '%' }"></i>
+          </div>
+        </div>
+        <div class="countdown-empty" v-else>
+          <span>設定您的出發日期與時間，開啟出國登機倒數儀式！</span>
+        </div>
+      </div>
+
       <div class="itinerary-actions" v-if="isEditing">
         <button @click="copyItinerary" class="action-btn" title="複製"><i class="fa fa-copy"></i></button>
         <button @click="clearItinerary" class="action-btn" title="清除"><i class="fa fa-trash"></i></button>
@@ -1603,6 +2024,25 @@
       <div class="result" v-if="convertedTime">
         轉換結果：{{ convertedTime }}
       </div>
+
+      <!-- 世界城市時鐘 -->
+      <div class="world-clock-section">
+        <h5 class="world-clock-title"><i class="fa fa-globe"></i> 世界城市時鐘</h5>
+        <div class="world-clock-grid">
+          <div class="world-clock-card" v-for="city in worldCities" :key="city.name">
+            <div class="city-info">
+              <span class="city-name">{{ city.name }}</span>
+              <span class="city-time-diff">{{ city.diffText }}</span>
+            </div>
+            <div class="city-time-section">
+              <span class="city-time">{{ city.timeText }}</span>
+              <span class="city-period-icon" :title="city.isDay ? '白天' : '夜晚'">
+                <i class="fa" :class="city.isDay ? 'fa-sun-o text-yellow' : 'fa-moon-o text-blue'"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <div v-if="activeTab === 'translate'" class="translate">
       <h4 class="w3-center" style="font-weight: bold;">【 語言翻譯 】</h4>
@@ -1672,16 +2112,39 @@
           </button>
         </div>
         <div class="template-items">
-          <button 
+          <div 
             v-for="(item, idx) in currentTemplates" 
             :key="idx" 
-            @click="applyTemplate(item.text)"
-            class="template-bubble-btn"
-            :title="item.text"
+            class="template-bubble-wrapper"
           >
-            <span class="template-bubble-title">{{ item.title }}</span>
-            <span class="template-bubble-desc">{{ item.text }}</span>
-          </button>
+            <button 
+              @click="applyTemplate(item.text)"
+              class="template-bubble-btn"
+              :title="item.text"
+              style="padding-right: 32px;"
+            >
+              <span class="template-bubble-title">{{ item.title }}</span>
+              <span class="template-bubble-desc">{{ item.text }}</span>
+            </button>
+            <button 
+              v-if="templateCategories[activeTemplateCat]?.isCustom"
+              @click="deleteCustomTemplate(idx)" 
+              class="template-bubble-delete"
+              title="刪除自訂句"
+            >
+              <i class="fa fa-trash"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- 新增自訂常用對話表單 -->
+        <div v-if="templateCategories[activeTemplateCat]?.isCustom" class="custom-template-add">
+          <p class="gemini-hint" style="margin-top: 0;">您可以自訂常用的中文句子，並設定快捷按鈕，點擊氣泡即可自動翻譯成目標語言並語音朗讀。</p>
+          <div class="custom-template-inputs">
+            <input type="text" v-model="newCustomTemplate.title" placeholder="快捷按鈕名稱（如：點飲料、問地鐵）" class="custom-input-field">
+            <input type="text" v-model="newCustomTemplate.text" placeholder="完整的中文句子（如：請問最近的便利商店怎麼走？）" class="custom-input-field">
+            <button @click="addCustomTemplate" class="custom-add-btn"><i class="fa fa-plus"></i> 新增自訂常用語</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1741,6 +2204,11 @@
         <div class="summary-total">
           <span class="summary-label">折合台幣總花費</span>
           <span class="summary-value">NT$ {{ formatTotalExpenses }}</span>
+        </div>
+
+        <!-- HTML5 Canvas 記帳環形佔比圖 -->
+        <div class="expense-chart-container">
+          <canvas id="expenseChart" width="200" height="200"></canvas>
         </div>
         
         <!-- 類別花費比例條 -->
@@ -2122,6 +2590,21 @@
           showExpenseEditPopup: false,
           editingExpenseIndex: -1,
           editingExpense: null,
+          departureDate: currentTrip.departureDate || '',
+          tempDepartureDate: currentTrip.departureDate || '',
+          showDepartureDatePicker: false,
+          countdownText: null,
+          newCustomTemplate: { title: '', text: '' },
+          worldCities: [
+            { name: '東京 🇯🇵', timezone: 'Asia/Tokyo', timeText: '', diffText: '', isDay: true },
+            { name: '首爾 🇰🇷', timezone: 'Asia/Seoul', timeText: '', diffText: '', isDay: true },
+            { name: '曼谷 🇹🇭', timezone: 'Asia/Bangkok', timeText: '', diffText: '', isDay: true },
+            { name: '新加坡 🇸🇬', timezone: 'Asia/Singapore', timeText: '', diffText: '', isDay: true },
+            { name: '倫敦 🇬🇧', timezone: 'Europe/London', timeText: '', diffText: '', isDay: true },
+            { name: '巴黎 🇫🇷', timezone: 'Europe/Paris', timeText: '', diffText: '', isDay: true },
+            { name: '紐約 🇺🇸', timezone: 'America/New_York', timeText: '', diffText: '', isDay: true },
+            { name: '雪梨 🇦🇺', timezone: 'Australia/Sydney', timeText: '', diffText: '', isDay: true }
+          ],
           currentFormat: {
             bold: false,
             highlight: false,
@@ -2189,6 +2672,11 @@
                 { title: '我的身體非常不舒服', text: '我不舒服，感到非常頭暈和噁心，請問這附近有醫院或藥局嗎？' },
                 { title: '請幫我叫救護車！', text: '有人受傷了，情況很緊急，請立刻幫忙撥打電話叫救護車！' }
               ]
+            },
+            {
+              name: '⭐ 我的常用語',
+              items: [],
+              isCustom: true
             }
           ]
         }
@@ -2684,7 +3172,173 @@
             '紀念品': '🎁',
             '其他': '🚑'
           };
-          return icons[category] || '🚑';
+          return icons[category] || '物理';
+        },
+        drawDonutChart() {
+          this.$nextTick(() => {
+            const canvas = document.getElementById('expenseChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const stats = this.categoryStats;
+            if (stats.length === 0) return;
+            
+            const total = stats.reduce((sum, s) => sum + s.amount, 0);
+            
+            let startAngle = -Math.PI / 2;
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = 70;
+            const thickness = 16;
+            
+            stats.forEach(s => {
+              const sliceAngle = (s.amount / total) * 2 * Math.PI;
+              
+              ctx.beginPath();
+              ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
+              ctx.strokeStyle = s.color;
+              ctx.lineWidth = thickness;
+              ctx.lineCap = 'round';
+              ctx.stroke();
+              
+              startAngle += sliceAngle;
+            });
+            
+            ctx.font = 'bold 16px Inter, "SF Pro Display", sans-serif';
+            ctx.fillStyle = this.isDarkMode ? '#f8fafc' : '#1e293b';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            const totalStr = `NT$${Math.round(total).toLocaleString()}`;
+            if (totalStr.length > 9) {
+              ctx.font = 'bold 12px Inter, sans-serif';
+            }
+            ctx.fillText(totalStr, centerX, centerY);
+          });
+        },
+        saveDepartureDate() {
+          if (!this.tempDepartureDate) {
+            alert('請選擇有效的日期！');
+            return;
+          }
+          this.departureDate = this.tempDepartureDate;
+          this.saveCurrentTripData();
+          this.showDepartureDatePicker = false;
+        },
+        clearDepartureDate() {
+          if (confirm('確定要清除出發日期嗎？')) {
+            this.departureDate = '';
+            this.tempDepartureDate = '';
+            this.saveCurrentTripData();
+            this.showDepartureDatePicker = false;
+          }
+        },
+        updateCountdown() {
+          if (!this.departureDate) {
+            this.countdownText = null;
+            return;
+          }
+          const depTime = new Date(this.departureDate).getTime();
+          const now = new Date().getTime();
+          const diff = depTime - now;
+          
+          if (diff <= 0) {
+            this.countdownText = null;
+            return;
+          }
+          
+          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          const secs = Math.floor((diff % (1000 * 60)) / 1000);
+          
+          this.countdownText = { days, hours, mins, secs };
+        },
+        updateWorldClockTimes() {
+          const now = new Date();
+          this.worldCities.forEach(city => {
+            try {
+              const options = {
+                timeZone: city.timezone,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+              };
+              const timeStr = now.toLocaleTimeString('en-US', options);
+              city.timeText = timeStr;
+              
+              const hour = parseInt(timeStr.split(':')[0], 10);
+              city.isDay = hour >= 6 && hour < 18;
+              
+              const getOffset = (tz) => {
+                const tzDate = new Date(now.toLocaleString('en-US', { timeZone: tz }));
+                const utcDate = new Date(now.toLocaleString('en-US', { timeZone: 'UTC' }));
+                return (tzDate - utcDate) / (1000 * 60 * 60);
+              };
+              
+              const localOffset = getOffset('Asia/Taipei');
+              const targetOffset = getOffset(city.timezone);
+              const diff = targetOffset - localOffset;
+              
+              if (diff === 0) {
+                city.diffText = '無時差';
+              } else {
+                const sign = diff > 0 ? '+' : '';
+                city.diffText = `時差 ${sign}${diff} 小時`;
+              }
+            } catch (e) {
+              console.error('世界城市時鐘計算失敗:', e);
+            }
+          });
+        },
+        loadCustomTemplates() {
+          try {
+            const saved = localStorage.getItem('custom_templates');
+            const items = saved ? JSON.parse(saved) : [];
+            const customCat = this.templateCategories.find(c => c.isCustom);
+            if (customCat) {
+              customCat.items = items;
+            }
+          } catch (e) {
+            console.error('載入自訂常用語失敗:', e);
+          }
+        },
+        saveCustomTemplates(items) {
+          try {
+            localStorage.setItem('custom_templates', JSON.stringify(items));
+          } catch (e) {
+            console.error('保存自訂常用語失敗:', e);
+          }
+        },
+        addCustomTemplate() {
+          const title = this.newCustomTemplate.title.trim();
+          const text = this.newCustomTemplate.text.trim();
+          
+          if (!title || !text) {
+            alert('按鈕名稱與常用語內容皆不能為空！');
+            return;
+          }
+          
+          const customCat = this.templateCategories.find(c => c.isCustom);
+          if (customCat) {
+            customCat.items.push({ title, text });
+            this.saveCustomTemplates(customCat.items);
+            
+            this.newCustomTemplate.title = '';
+            this.newCustomTemplate.text = '';
+            alert('已成功新增自訂常用語！');
+          }
+        },
+        deleteCustomTemplate(index) {
+          if (confirm('確定要刪除這筆自訂常用語嗎？')) {
+            const customCat = this.templateCategories.find(c => c.isCustom);
+            if (customCat) {
+              customCat.items.splice(index, 1);
+              this.saveCustomTemplates(customCat.items);
+            }
+          }
         },
 
         swapLanguages() {
@@ -3225,7 +3879,8 @@ ${this.sourceText}
                     name: '匯入的行程_' + new Date().toLocaleDateString(),
                     itineraryText: importedData.itinerary,
                     todos: importedData.todos,
-                    expenses: []
+                    expenses: [],
+                    departureDate: ''
                   };
                   this.trips.push(newTrip);
                   this.selectTrip(newTrip.id);
@@ -3235,6 +3890,7 @@ ${this.sourceText}
                   this.itineraryText = importedData.itinerary;
                   this.todos = importedData.todos;
                   this.expenses = [];
+                  this.departureDate = '';
                   this.saveCurrentTripData();
                   
                   this.$nextTick(() => {
@@ -3265,6 +3921,7 @@ ${this.sourceText}
             trip.todos = this.todos;
             trip.itineraryText = this.itineraryText;
             trip.expenses = this.expenses;
+            trip.departureDate = this.departureDate;
             localStorage.setItem('travel_trips', JSON.stringify(this.trips));
           }
         },
@@ -3283,6 +3940,8 @@ ${this.sourceText}
             this.todos = trip.todos || [];
             this.itineraryText = trip.itineraryText || '';
             this.expenses = trip.expenses || [];
+            this.departureDate = trip.departureDate || '';
+            this.tempDepartureDate = this.departureDate;
             
             // 同步更新編輯區內容
             this.$nextTick(() => {
@@ -3311,7 +3970,8 @@ ${this.sourceText}
             name: name,
             itineraryText: '',
             todos: [],
-            expenses: []
+            expenses: [],
+            departureDate: ''
           };
           this.trips.push(newTrip);
           this.newTripName = '';
@@ -3421,6 +4081,7 @@ ${this.sourceText}
         expenses: {
           handler() {
             this.saveCurrentTripData();
+            this.drawDonutChart();
           },
           deep: true
         },
@@ -3441,6 +4102,8 @@ ${this.sourceText}
             this.$nextTick(() => {
               this.initSortable();
             });
+          } else if (newTab === 'expenses') {
+            this.drawDonutChart();
           }
         },
       },
@@ -3473,8 +4136,19 @@ ${this.sourceText}
 
         this.fetchExchangeRates();
         this.convertTime();
-        // 每秒更新一次本地時間
-        setInterval(this.updateLocalTime, 1000);
+
+        // 載入與初始化進階旅遊工具功能
+        this.loadCustomTemplates();
+        this.updateWorldClockTimes();
+        this.updateCountdown();
+
+        // 每秒更新本地時間、世界時鐘與出發倒數
+        setInterval(() => {
+          this.updateLocalTime();
+          this.updateWorldClockTimes();
+          this.updateCountdown();
+        }, 1000);
+
         document.addEventListener('click', this.handleOutsideClick);
         
         // 初始化行程文本
