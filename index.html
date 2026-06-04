@@ -1779,6 +1779,9 @@
                 {{ item.amount }} {{ item.currency }}
               </div>
             </div>
+            <button @click="editExpense(index)" class="expense-delete-btn" title="編輯這筆" style="margin-right: 8px; color: var(--primary-color);">
+              <i class="fa fa-pencil"></i>
+            </button>
             <button @click="deleteExpense(index)" class="expense-delete-btn" title="刪除這筆">
               <i class="fa fa-times"></i>
             </button>
@@ -1787,6 +1790,59 @@
         <div class="expense-empty" v-else>
           <i class="fa fa-money" style="font-size: 40px; color: var(--text-secondary); margin-bottom: 10px; display: block;"></i>
           <span>目前尚無任何記帳紀錄，趕快記下您的第一筆消費吧！</span>
+        </div>
+      </div>
+      
+      <!-- 記帳編輯彈出視窗 -->
+      <div v-if="showExpenseEditPopup" class="edit-popup show">
+        <div class="edit-popup-content" style="max-width: 450px; width: 90%;">
+          <h4 style="font-weight: bold; margin-top: 0; margin-bottom: 20px; text-align: center; color: var(--text-primary);">編輯消費紀錄</h4>
+          
+          <div class="expense-form" style="text-align: left;">
+            <div class="form-row">
+              <div class="form-group flex-2">
+                <label>消費品項/備註</label>
+                <input type="text" v-model="editingExpense.remark" placeholder="例如：晚餐拉麵" class="expense-input">
+              </div>
+              <div class="form-group flex-1">
+                <label>消費類別</label>
+                <select v-model="editingExpense.category" class="expense-select">
+                  <option value="餐飲">🍔 餐飲</option>
+                  <option value="購物">🛍️ 購物</option>
+                  <option value="交通">🚌 交通</option>
+                  <option value="住宿">🏨 住宿</option>
+                  <option value="門票">🎫 門票</option>
+                  <option value="紀念品">🎁 紀念品</option>
+                  <option value="其他">🚑 其他</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group flex-2">
+                <label>消費金額</label>
+                <input type="number" v-model.number="editingExpense.amount" placeholder="輸入金額" class="expense-input" min="0">
+              </div>
+              <div class="form-group flex-1">
+                <label>幣別</label>
+                <select v-model="editingExpense.currency" class="expense-select">
+                  <option v-for="curr in currencies" :key="curr.code" :value="curr.code">{{ curr.code }} ({{ curr.name }})</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="form-row" v-if="editingExpense.currency !== 'TWD'">
+              <div class="currency-conversion-preview">
+                <i class="fa fa-info-circle"></i>
+                <span>即時匯率換算：<b>{{ formatEditingConvertedAmount }}</b> TWD</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="edit-popup-buttons" style="margin-top: 20px;">
+            <button @click="saveExpenseEdit">保存修改</button>
+            <button @click="cancelExpenseEdit" style="background-color: #64748b;">取消</button>
+          </div>
         </div>
       </div>
     </div>
@@ -2063,6 +2119,9 @@
           itineraryText: currentTrip.itineraryText || '',
           expenses: currentTrip.expenses || [],
           newExpense: { remark: '', category: '餐飲', amount: null, currency: 'TWD' },
+          showExpenseEditPopup: false,
+          editingExpenseIndex: -1,
+          editingExpense: null,
           currentFormat: {
             bold: false,
             highlight: false,
@@ -2143,6 +2202,10 @@
         },
         formatConvertedAmount() {
           return Math.round(this.getConvertedAmount(this.newExpense.amount, this.newExpense.currency));
+        },
+        formatEditingConvertedAmount() {
+          if (!this.editingExpense) return 0;
+          return Math.round(this.getConvertedAmount(this.editingExpense.amount, this.editingExpense.currency));
         },
         formatTotalExpenses() {
           const total = this.expenses.reduce((sum, item) => sum + (item.convertedAmount || 0), 0);
@@ -2566,6 +2629,38 @@
             this.expenses = [];
             this.saveCurrentTripData();
           }
+        },
+        editExpense(index) {
+          this.editingExpenseIndex = index;
+          this.editingExpense = JSON.parse(JSON.stringify(this.expenses[index]));
+          this.showExpenseEditPopup = true;
+        },
+        saveExpenseEdit() {
+          if (this.editingExpenseIndex !== -1 && this.editingExpense) {
+            if (!this.editingExpense.amount || isNaN(this.editingExpense.amount) || this.editingExpense.amount <= 0) {
+              alert('請輸入有效的消費金額');
+              return;
+            }
+            const converted = this.getConvertedAmount(this.editingExpense.amount, this.editingExpense.currency);
+            
+            const updatedItem = {
+              ...this.expenses[this.editingExpenseIndex],
+              remark: this.editingExpense.remark.trim(),
+              category: this.editingExpense.category,
+              amount: this.editingExpense.amount,
+              currency: this.editingExpense.currency,
+              convertedAmount: converted
+            };
+            
+            this.expenses[this.editingExpenseIndex] = updatedItem;
+            this.saveCurrentTripData();
+            this.cancelExpenseEdit();
+          }
+        },
+        cancelExpenseEdit() {
+          this.showExpenseEditPopup = false;
+          this.editingExpenseIndex = -1;
+          this.editingExpense = null;
         },
         getCategoryColor(category) {
           const colors = {
