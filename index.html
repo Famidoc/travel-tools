@@ -653,6 +653,26 @@
       color: var(--primary-color);
     }
 
+    .clear-text-btn {
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 18px;
+      padding: 4px;
+      transition: color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .clear-text-btn:hover {
+      color: #ef4444;
+    }
+
     /* Gemini 翻譯設定區 */
     .gemini-config-section {
       background-color: var(--card-bg, #ffffff);
@@ -738,10 +758,12 @@
     .gemini-input-group {
       display: flex;
       gap: 8px;
+      flex-wrap: wrap;
     }
     
     .gemini-key-input {
-      flex: 1;
+      flex: 1 1 180px;
+      min-width: 0;
       padding: 8px 12px;
       font-size: 14px;
     }
@@ -754,6 +776,8 @@
       border-radius: var(--radius-md);
       cursor: pointer;
       transition: all 0.2s;
+      flex: 1 0 auto;
+      text-align: center;
     }
     
     .gemini-btn.save {
@@ -1341,6 +1365,9 @@
         <textarea v-model="sourceText" placeholder="請輸入要翻譯的文字" rows="5"></textarea>
         <button class="speak-btn" @click="speakText(sourceText, fromLanguage)" title="朗讀原文">
           <i class="fa fa-volume-up"></i>
+        </button>
+        <button class="clear-text-btn" v-if="sourceText" @click="sourceText = ''; translatedText = ''" title="清除內容">
+          <i class="fa fa-times-circle"></i>
         </button>
       </div>
       <button @click="translateText" class="translate-btn" :disabled="isLoading">
