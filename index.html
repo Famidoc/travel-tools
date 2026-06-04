@@ -1801,75 +1801,124 @@
           const selectedText = selection.toString();
           
           if (format === 'whitebg' || format === 'black') {
-            // 智慧型清除特定格式邏輯 (適用局部或全部選取，不殘留冗餘標籤)
-            const fragment = range.extractContents();
+            // --- 智慧型格式清除 (打掉重練版：精確 DOM 分裂與樣式剝離) ---
+            const container = range.commonAncestorContainer;
+            const element = container.nodeType === 3 ? container.parentElement : container;
             
-            // 1. 處理 fragment 內部嵌套的子節點
-            const elements = fragment.querySelectorAll('span, font');
-            elements.forEach(el => {
-              if (format === 'whitebg') {
-                el.style.removeProperty('background-color');
-                el.classList.remove('highlight');
-              } else if (format === 'black') {
-                el.style.removeProperty('color');
-                if (el.tagName === 'FONT') {
-                  el.removeAttribute('color');
+            // 尋找包含要清除樣式的最接近祖先節點
+            let targetEl = null;
+            let current = element;
+            while (current && current.closest('.itinerary-textarea')) {
+              if (current.tagName === 'SPAN' || current.tagName === 'FONT') {
+                if (format === 'whitebg' && (current.style.backgroundColor || current.classList.contains('highlight'))) {
+                  targetEl = current;
+                  break;
+                }
+                if (format === 'black' && (current.style.color || current.hasAttribute('color'))) {
+                  targetEl = current;
+                  break;
                 }
               }
-              
-              // 智慧解構無樣式與無類別的標籤
-              const isRedundantFont = el.tagName === 'FONT' && !el.hasAttribute('color');
-              const isRedundantSpan = el.tagName === 'SPAN' && 
-                                      (!el.style.cssText || el.style.cssText.trim() === '') && 
-                                      (!el.className || el.className.trim() === '');
-              
-              if (isRedundantFont || isRedundantSpan) {
-                const parent = el.parentNode;
-                if (parent) {
-                  while (el.firstChild) {
-                    parent.insertBefore(el.firstChild, el);
+              current = current.parentElement;
+            }
+            
+            if (targetEl) {
+              // 案例 A：選取區被包裹在有該格式的祖先節點中
+              const parent = targetEl.parentNode;
+              if (parent) {
+                const fullText = targetEl.textContent;
+                const startOffset = fullText.indexOf(selectedText);
+                
+                if (startOffset > -1) {
+                  const endOffset = startOffset + selectedText.length;
+                  const beforeText = fullText.substring(0, startOffset);
+                  const afterText = fullText.substring(endOffset);
+                  
+                  // 1. 建立選取前的格式節點 (拷貝原樣式)
+                  if (beforeText) {
+                    const beforeEl = targetEl.cloneNode(false);
+                    beforeEl.textContent = beforeText;
+                    parent.insertBefore(beforeEl, targetEl);
                   }
-                  parent.removeChild(el);
-                }
-              }
-            });
-            
-            // 2. 處理 fragment 最外層的直接子節點 (querySelectorAll 不會包含最外層元素本身)
-            Array.from(fragment.childNodes).forEach(el => {
-              if (el.nodeType === 1) { // Element node
-                if (el.tagName === 'SPAN' || el.tagName === 'FONT') {
+                  
+                  // 2. 建立選取中的清除格式節點 (移除了該樣式)
+                  const tempEl = targetEl.cloneNode(false);
                   if (format === 'whitebg') {
-                    el.style.removeProperty('background-color');
-                    el.classList.remove('highlight');
+                    tempEl.style.removeProperty('background-color');
+                    tempEl.classList.remove('highlight');
                   } else if (format === 'black') {
-                    el.style.removeProperty('color');
-                    if (el.tagName === 'FONT') {
-                      el.removeAttribute('color');
-                    }
+                    tempEl.style.removeProperty('color');
+                    tempEl.removeAttribute('color');
                   }
                   
-                  const isRedundantFont = el.tagName === 'FONT' && !el.hasAttribute('color');
-                  const isRedundantSpan = el.tagName === 'SPAN' && 
-                                          (!el.style.cssText || el.style.cssText.trim() === '') && 
-                                          (!el.className || el.className.trim() === '');
+                  // 判斷移除後，是否還需要保留 span/font 外殼 (例如還留有粗體)
+                  const needsSpan = tempEl.tagName === 'SPAN' && (tempEl.style.cssText || tempEl.className);
+                  const needsFont = tempEl.tagName === 'FONT' && tempEl.hasAttribute('color');
                   
-                  if (isRedundantFont || isRedundantSpan) {
-                    const parent = el.parentNode;
-                    if (parent) {
-                      while (el.firstChild) {
-                        parent.insertBefore(el.firstChild, el);
-                      }
-                      parent.removeChild(el);
-                    }
+                  if (needsSpan || needsFont) {
+                    tempEl.textContent = selectedText;
+                    parent.insertBefore(tempEl, targetEl);
+                  } else {
+                    const cleanTextNode = document.createTextNode(selectedText);
+                    parent.insertBefore(cleanTextNode, targetEl);
                   }
+                  
+                  // 3. 建立選取後的格式節點 (拷貝原樣式)
+                  if (afterText) {
+                    const afterEl = targetEl.cloneNode(false);
+                    afterEl.textContent = afterText;
+                    parent.insertBefore(afterEl, targetEl);
+                  }
+                  
+                  // 4. 刪除舊的 targetEl
+                  parent.removeChild(targetEl);
                 }
               }
-            });
+            } else {
+              // 案例 B：選取區內部含有格式標籤 (一次選取多段格式)
+              const fragment = range.extractContents();
+              
+              const cleanEl = (el) => {
+                if (format === 'whitebg') {
+                  el.style.removeProperty('background-color');
+                  el.classList.remove('highlight');
+                } else if (format === 'black') {
+                  el.style.removeProperty('color');
+                  if (el.tagName === 'FONT') {
+                    el.removeAttribute('color');
+                  }
+                }
+                
+                // 智慧解構無用標籤
+                const isRedundantFont = el.tagName === 'FONT' && !el.hasAttribute('color');
+                const isRedundantSpan = el.tagName === 'SPAN' && 
+                                        (!el.style.cssText || el.style.cssText.trim() === '') && 
+                                        (!el.className || el.className.trim() === '');
+                
+                if (isRedundantFont || isRedundantSpan) {
+                  const parent = el.parentNode;
+                  if (parent) {
+                    while (el.firstChild) {
+                      parent.insertBefore(el.firstChild, el);
+                    }
+                    parent.removeChild(el);
+                  }
+                }
+              };
+              
+              // 清理嵌套子節點
+              fragment.querySelectorAll('span, font').forEach(cleanEl);
+              
+              // 清理最外層的直接子元素
+              Array.from(fragment.childNodes).forEach(el => {
+                if (el.nodeType === 1 && (el.tagName === 'SPAN' || el.tagName === 'FONT')) {
+                  cleanEl(el);
+                }
+              });
+              
+              range.insertNode(fragment);
+            }
             
-            // 插入處理後的片段
-            range.insertNode(fragment);
-            
-            // 清除當前格式的 active 狀態
             this.currentFormat[format] = false;
           } else {
             // 原有的格式套用邏輯 (bold, highlight, red, blue)
