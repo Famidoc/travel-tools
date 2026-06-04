@@ -929,17 +929,142 @@
     }
 
     /* --- 出國倒數飛機卡樣式 --- */
+    /* 懸浮小飛機按鈕 */
+    .countdown-float-btn {
+      position: fixed;
+      bottom: 40px;
+      right: 20px;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--btn-primary, #4facfe);
+      border: 2px solid white;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      z-index: 999;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    .countdown-float-btn.active {
+      background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 50%, #4facfe 100%);
+      animation: pulse-plane 2s infinite;
+    }
+    
+    .countdown-float-btn.empty {
+      background: rgba(148, 163, 184, 0.8);
+      border-color: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(4px);
+    }
+
+    .countdown-float-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .countdown-float-btn i {
+      font-size: 20px;
+    }
+
+    /* 懸浮按鈕的倒數天數 Badge */
+    .countdown-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: #ef4444;
+      color: white;
+      font-size: 10px;
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 10px;
+      border: 1px solid white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    @keyframes pulse-plane {
+      0% {
+        box-shadow: 0 0 0 0 rgba(79, 172, 254, 0.6);
+      }
+      70% {
+        box-shadow: 0 0 0 10px rgba(79, 172, 254, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(79, 172, 254, 0);
+      }
+    }
+
+    /* 彈窗遮罩與內容容器 */
+    .countdown-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(6px);
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .countdown-modal.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .countdown-modal-content {
+      width: 100%;
+      max-width: 420px;
+      transform: scale(0.9);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+    }
+
+    .countdown-modal.show .countdown-modal-content {
+      transform: scale(1);
+    }
+
+    .countdown-close-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(0, 0, 0, 0.2);
+      border: none;
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: background 0.2s;
+      z-index: 10;
+    }
+
+    .countdown-close-btn:hover {
+      background: rgba(0, 0, 0, 0.4);
+    }
+
     .countdown-card {
       background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 50%, #4facfe 100%);
       border-radius: var(--radius-md);
-      padding: 16px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow-md);
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
       color: white;
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
       transition: all 0.3s ease;
       position: relative;
       overflow: hidden;
+      margin-bottom: 0;
     }
     
     .countdown-card::before {
@@ -1861,44 +1986,21 @@
     </div>
     <div v-if="activeTab === 'itinerary'" class="itinerary">
       <h4 class="w3-center" style="font-weight: bold;">【 行程資料 】</h4>
-      
-      <!-- 出國倒數儀式卡 -->
-      <div class="countdown-card">
-        <div class="countdown-header">
-          <span class="countdown-title"><i class="fa fa-plane"></i> 旅程出發倒數</span>
-          <button @click="showDepartureDatePicker = !showDepartureDatePicker" class="countdown-set-btn">
-            <i class="fa fa-calendar"></i> {{ departureDate ? '修改出發日' : '設定出發日' }}
-          </button>
-        </div>
-        
-        <!-- 出發日選擇器折疊區 -->
-        <div v-show="showDepartureDatePicker" class="departure-date-picker">
-          <input type="datetime-local" v-model="tempDepartureDate" class="departure-input">
-          <div class="picker-buttons">
-            <button @click="saveDepartureDate" class="picker-btn save">保存</button>
-            <button @click="clearDepartureDate" class="picker-btn clear" v-if="departureDate">清除</button>
-          </div>
-        </div>
-        
-        <div class="countdown-content" v-if="departureDate">
-          <div class="countdown-timer" v-if="countdownText">
-            <span class="timer-days">{{ countdownText.days }}</span><span class="timer-unit">天</span>
-            <span class="timer-hours">{{ countdownText.hours }}</span><span class="timer-unit">時</span>
-            <span class="timer-mins">{{ countdownText.mins }}</span><span class="timer-unit">分</span>
-            <span class="timer-secs">{{ countdownText.secs }}</span><span class="timer-unit">秒</span>
-          </div>
-          <div class="countdown-passed" v-else>
-            🎉 祝您旅途愉快！出發旅行囉！
-          </div>
-          <div class="flight-progress-bar" v-if="countdownText">
-            <div class="flight-track"></div>
-            <div class="flight-progress" :style="{ width: flightProgressPercent + '%' }"></div>
-            <i class="fa fa-plane flight-icon" :style="{ left: flightProgressPercent + '%' }"></i>
-          </div>
-        </div>
-        <div class="countdown-empty" v-else>
-          <span>設定您的出發日期與時間，開啟出國登機倒數儀式！</span>
-        </div>
+      <!-- 懸浮出國倒數小飛機按鈕 -->
+      <div 
+        class="countdown-float-btn" 
+        :class="{ active: departureDate && countdownText, empty: !departureDate }" 
+        @click="showCountdownModal = true"
+        title="開啟旅程出發倒數"
+      >
+        <i class="fa fa-plane"></i>
+        <!-- 顯示精簡天數 Badge -->
+        <span class="countdown-badge" v-if="departureDate && countdownText">
+          {{ countdownText.days > 0 ? countdownText.days + '天' : 'GO' }}
+        </span>
+        <span class="countdown-badge" v-else-if="departureDate && !countdownText">
+          GO
+        </span>
       </div>
 
       <div class="itinerary-actions" v-if="isEditing">
@@ -2326,6 +2428,51 @@
         <input type="file" ref="fileInput" @change="importData" style="display: none" accept=".json,application/json">
     </div>
     
+    <!-- 出國倒數彈窗 (Modal) -->
+    <div class="countdown-modal" :class="{ show: showCountdownModal }" @click.self="showCountdownModal = false">
+      <div class="countdown-modal-content">
+        <button @click="showCountdownModal = false" class="countdown-close-btn">&times;</button>
+        
+        <div class="countdown-card">
+          <div class="countdown-header" style="margin-right: 20px;">
+            <span class="countdown-title"><i class="fa fa-plane"></i> 旅程出發倒數</span>
+            <button @click="showDepartureDatePicker = !showDepartureDatePicker" class="countdown-set-btn">
+              <i class="fa fa-calendar"></i> {{ departureDate ? '修改出發日' : '設定出發日' }}
+            </button>
+          </div>
+          
+          <!-- 出發日選擇器折疊區 -->
+          <div v-show="showDepartureDatePicker" class="departure-date-picker">
+            <input type="datetime-local" v-model="tempDepartureDate" class="departure-input">
+            <div class="picker-buttons">
+              <button @click="saveDepartureDate" class="picker-btn save">保存</button>
+              <button @click="clearDepartureDate" class="picker-btn clear" v-if="departureDate">清除</button>
+            </div>
+          </div>
+          
+          <div class="countdown-content" v-if="departureDate">
+            <div class="countdown-timer" v-if="countdownText">
+              <span class="timer-days">{{ countdownText.days }}</span><span class="timer-unit">天</span>
+              <span class="timer-hours">{{ countdownText.hours }}</span><span class="timer-unit">時</span>
+              <span class="timer-mins">{{ countdownText.mins }}</span><span class="timer-unit">分</span>
+              <span class="timer-secs">{{ countdownText.secs }}</span><span class="timer-unit">秒</span>
+            </div>
+            <div class="countdown-passed" v-else style="font-weight: bold; font-size: 16px; margin: 12px 0;">
+              🎉 祝您旅途愉快！出發旅行囉！
+            </div>
+            <div class="flight-progress-bar" v-if="countdownText">
+              <div class="flight-track"></div>
+              <div class="flight-progress" :style="{ width: flightProgressPercent + '%' }"></div>
+              <i class="fa fa-plane flight-icon" :style="{ left: flightProgressPercent + '%' }"></i>
+            </div>
+          </div>
+          <div class="countdown-empty" v-else>
+            <span>設定您的出發日期與時間，開啟出國登機倒數儀式！</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- 使用說明彈出窗口 -->
     <div v-if="showInstructionsPopup" class="instructions-popup show">
       <div class="popup-content">
@@ -2593,6 +2740,7 @@
           departureDate: currentTrip.departureDate || '',
           tempDepartureDate: currentTrip.departureDate || '',
           showDepartureDatePicker: false,
+          showCountdownModal: false,
           countdownText: null,
           newCustomTemplate: { title: '', text: '' },
           worldCities: [
