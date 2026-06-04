@@ -293,6 +293,23 @@
       border-color: var(--primary-color);
     }
 
+    .exit-edit-btn {
+      margin-left: auto;
+      background-color: var(--primary-color) !important;
+      color: white !important;
+      border-color: var(--primary-color) !important;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px !important;
+    }
+
+    .exit-edit-btn:hover {
+      background-color: var(--primary-hover) !important;
+      border-color: var(--primary-hover) !important;
+    }
+
     .itinerary-textarea {
       flex: 1;
       width: 100%;
@@ -935,7 +952,7 @@
         <button @click="toggleFormat('blue')" class="format-btn" :class="{ active: currentFormat.blue }" title="藍色文字"><i class="fa fa-font" style="color: blue;"></i></button>
         <button @click="toggleFormat('black')" class="format-btn" :class="{ active: currentFormat.black }" title="預設文字顏色"><i class="fa fa-font" style="color: var(--text-primary);"></i></button>
         <button @click="addToTodo" class="action-btn" title="加入待辦"><i class="fa fa-plus"></i></button>
-        <button @click="exitEditing" class="action-btn" title="退出編輯"><i class="fa fa-times"></i></button>
+        <button @click="exitEditing" class="action-btn exit-edit-btn" title="儲存並完成編輯"><i class="fa fa-check"></i> 完成</button>
       </div>
       <div 
         class="itinerary-textarea"
@@ -1757,6 +1774,22 @@
             if (this.selectedText) {
               const range = selection.getRangeAt(0);
               this.currentRange = range;
+              
+              // 動態檢查當前選取範圍的格式，並更新 currentFormat 的狀態
+              this.currentFormat.bold = this.checkExistingFormat(range, 'bold');
+              this.currentFormat.highlight = this.checkExistingFormat(range, 'highlight');
+              this.currentFormat.whitebg = this.checkExistingFormat(range, 'whitebg');
+              this.currentFormat.red = this.checkExistingFormat(range, 'red');
+              this.currentFormat.blue = this.checkExistingFormat(range, 'blue');
+              this.currentFormat.black = this.checkExistingFormat(range, 'black');
+            } else {
+              // 若無選取任何文字，清除格式按鈕的亮起狀態
+              this.currentFormat.bold = false;
+              this.currentFormat.highlight = false;
+              this.currentFormat.whitebg = false;
+              this.currentFormat.red = false;
+              this.currentFormat.blue = false;
+              this.currentFormat.black = false;
             }
           }
         },
@@ -1767,60 +1800,87 @@
           const range = selection.getRangeAt(0);
           const selectedText = selection.toString();
           
-          // 創建新的格式化元素
-          const span = document.createElement('span');
-          
-          // 檢查選中的文本是否已經有該格式
-          const hasFormat = this.checkExistingFormat(range, format);
-          
-          if (hasFormat) {
-            // 如果已經有該格式，則移除它
-            const textNode = document.createTextNode(selectedText);
-            range.deleteContents();
-            range.insertNode(textNode);
+          if (format === 'whitebg' || format === 'black') {
+            // 智慧型清除特定格式邏輯 (適用局部或全部選取，不殘留冗餘標籤)
+            const fragment = range.extractContents();
+            
+            const cleanStyles = (node) => {
+              if (node.nodeType === 1) { // Element node
+                if (node.tagName === 'SPAN') {
+                  if (format === 'whitebg') {
+                    node.style.removeProperty('background-color');
+                  } else if (format === 'black') {
+                    node.style.removeProperty('color');
+                  }
+                  
+                  // 如果 span 已經沒有任何樣式了，將其內容提取出來，避免殘留空標籤
+                  if (!node.style.cssText || node.style.cssText.trim() === '') {
+                    const parent = node.parentNode;
+                    if (parent) {
+                      while (node.firstChild) {
+                        parent.insertBefore(node.firstChild, node);
+                      }
+                      parent.removeChild(node);
+                    }
+                  }
+                }
+                // 遞迴處理子節點
+                if (node.parentNode) { // 確保節點還在 DOM 樹中
+                  Array.from(node.childNodes).forEach(cleanStyles);
+                }
+              }
+            };
+            
+            // 清理片段中的所有節點
+            Array.from(fragment.childNodes).forEach(cleanStyles);
+            
+            // 插入處理後的片段
+            range.insertNode(fragment);
+            
+            // 清除當前格式的 active 狀態
             this.currentFormat[format] = false;
           } else {
-            // 如果沒有該格式，則添加它
-            switch(format) {
-              case 'bold':
-                span.style.fontWeight = 'bold';
-                break;
-              case 'highlight':
-                span.style.backgroundColor = '#FFFF00';
-                break;
-              case 'red':
-                span.style.color = 'red';
-                break;
-              case 'blue':
-                span.style.color = 'blue';
-                break;
-              case 'black':
-                span.style.color = 'inherit';
-                break;
-              case 'whitebg':
-                span.style.backgroundColor = 'transparent';
-                break;
+            // 原有的格式套用邏輯 (bold, highlight, red, blue)
+            const span = document.createElement('span');
+            const hasFormat = this.checkExistingFormat(range, format);
+            
+            if (hasFormat) {
+              const textNode = document.createTextNode(selectedText);
+              range.deleteContents();
+              range.insertNode(textNode);
+              this.currentFormat[format] = false;
+            } else {
+              switch(format) {
+                case 'bold':
+                  span.style.fontWeight = 'bold';
+                  break;
+                case 'highlight':
+                  span.style.backgroundColor = '#FFFF00';
+                  break;
+                case 'red':
+                  span.style.color = 'red';
+                  break;
+                case 'blue':
+                  span.style.color = 'blue';
+                  break;
+              }
+              span.textContent = selectedText;
+              range.deleteContents();
+              range.insertNode(span);
+              this.currentFormat[format] = true;
             }
-            span.textContent = selectedText;
-            range.deleteContents();
-            range.insertNode(span);
-            this.currentFormat[format] = true;
           }
           
-          // 更新行程文本
+          // 更新行程文本與儲存
           const contentDiv = document.querySelector('.itinerary-textarea');
-          this.itineraryText = contentDiv.innerHTML;
-          localStorage.setItem('itinerary', this.itineraryText);
-          
-          // 在移動設備上重新設置選擇範圍
-          if (window.innerWidth <= 768) {
-            const newRange = document.createRange();
-            newRange.selectNodeContents(span);
-            selection.removeAllRanges();
-            selection.addRange(newRange);
+          if (contentDiv) {
+            this.itineraryText = contentDiv.innerHTML;
+            this.saveCurrentTripData();
           }
+          
+          // 重新選取/更新工具列按鈕狀態
+          this.updateSelection();
         },
-        
         checkExistingFormat(range, format) {
           const container = range.commonAncestorContainer;
           const element = container.nodeType === 3 ? container.parentElement : container;
@@ -1833,15 +1893,24 @@
                      window.getComputedStyle(element).fontWeight === '700' ||
                      element.tagName === 'B' || element.tagName === 'STRONG';
             case 'highlight':
-              return element.style.backgroundColor === '#FFFF00';
+              return element.style.backgroundColor === '#FFFF00' || 
+                     element.style.backgroundColor === 'rgb(255, 255, 0)' ||
+                     element.style.backgroundColor === 'yellow';
             case 'red':
-              return element.style.color === 'red';
+              return element.style.color === 'red' || element.style.color === 'rgb(255, 0, 0)';
             case 'blue':
-              return element.style.color === 'blue';
+              return element.style.color === 'blue' || element.style.color === 'rgb(0, 0, 255)';
             case 'black':
-              return element.style.color === 'inherit';
+              // 當前文字不為紅色且不為藍色時，即為預設字色
+              const hasRed = element.style.color === 'red' || element.style.color === 'rgb(255, 0, 0)';
+              const hasBlue = element.style.color === 'blue' || element.style.color === 'rgb(0, 0, 255)';
+              return !hasRed && !hasBlue;
             case 'whitebg':
-              return element.style.backgroundColor === 'transparent';
+              // 當前文字不為黃色高亮時，即為預設背景色
+              const hasHighlight = element.style.backgroundColor === '#FFFF00' || 
+                                   element.style.backgroundColor === 'rgb(255, 255, 0)' || 
+                                   element.style.backgroundColor === 'yellow';
+              return !hasHighlight;
             default:
               return false;
           }
