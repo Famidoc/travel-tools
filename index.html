@@ -2688,8 +2688,8 @@
           showInstructionsPopup: false,
           activeTab: 'itinerary',
           amount: null,
-          fromCurrency: 'USD',
-          toCurrency: 'TWD',
+          fromCurrency: localStorage.getItem('last_from_currency') || 'USD',
+          toCurrency: localStorage.getItem('last_to_currency') || 'TWD',
           result: null,
           currencies: [
             { code: 'USD', name: '美元' },
@@ -2705,8 +2705,8 @@
           error: null,
           lastUpdated: null,
           localTime: new Date(),
-          fromTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone, // 獲取系統時區
-          toTimezone: 'America/New_York',
+          fromTimezone: localStorage.getItem('last_from_timezone') || Intl.DateTimeFormat().resolvedOptions().timeZone, // 獲取系統時區
+          toTimezone: localStorage.getItem('last_to_timezone') || 'America/New_York',
           convertedTime: '',
           timezones: [
             { value: 'Asia/Taipei', label: '台北' },
@@ -2728,8 +2728,8 @@
           editingIndex: -1,
           selectedTodos: [],
           activeDropdown: null,
-          fromLanguage: 'zh-TW',
-          toLanguage: 'en',
+          fromLanguage: localStorage.getItem('last_from_language') || 'zh-TW',
+          toLanguage: localStorage.getItem('last_to_language') || 'en',
           sourceText: '',
           translatedText: '',
           languages: [
@@ -2745,7 +2745,7 @@
           ],
           itineraryText: currentTrip.itineraryText || '',
           expenses: currentTrip.expenses || [],
-          newExpense: { remark: '', category: '餐飲', amount: null, currency: 'TWD' },
+          newExpense: { remark: '', category: '餐飲', amount: null, currency: localStorage.getItem('last_expense_currency') || 'TWD' },
           showExpenseEditPopup: false,
           editingExpenseIndex: -1,
           editingExpense: null,
@@ -4226,11 +4226,28 @@ ${this.sourceText}
         }
       },
       watch: {
-        fromTimezone() {
+        fromCurrency(newVal) {
+          localStorage.setItem('last_from_currency', newVal);
+        },
+        toCurrency(newVal) {
+          localStorage.setItem('last_to_currency', newVal);
+        },
+        fromTimezone(newVal) {
+          localStorage.setItem('last_from_timezone', newVal);
           this.convertTime();
         },
-        toTimezone() {
+        toTimezone(newVal) {
+          localStorage.setItem('last_to_timezone', newVal);
           this.convertTime();
+        },
+        fromLanguage(newVal) {
+          localStorage.setItem('last_from_language', newVal);
+        },
+        toLanguage(newVal) {
+          localStorage.setItem('last_to_language', newVal);
+        },
+        'newExpense.currency'(newVal) {
+          localStorage.setItem('last_expense_currency', newVal);
         },
         todos: {
           handler() {
