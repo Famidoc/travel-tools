@@ -1317,6 +1317,16 @@
       background-color: var(--primary-hover);
     }
 
+    .wallet-upload-btn.btn-secondary {
+      background-color: rgba(107, 114, 128, 0.1);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+    }
+
+    .wallet-upload-btn.btn-secondary:hover {
+      background-color: rgba(107, 114, 128, 0.2);
+    }
+
     .wallet-photo-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -2269,11 +2279,15 @@
             <i class="fa" :class="isWalletExpanded ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left: 6px; font-size: 11px; opacity: 0.7;"></i>
           </div>
           <!-- 限制最大上傳 4 張相片 -->
-          <div @click.stop v-show="isWalletExpanded">
-            <button @click="triggerPhotoUpload" class="wallet-upload-btn" v-if="walletPhotos.length < 4" title="上傳新憑證相片">
-              <i class="fa fa-plus"></i> 上傳相片 ({{ walletPhotos.length }}/4)
+          <div @click.stop v-show="isWalletExpanded" style="display: flex; gap: 8px; align-items: center;">
+            <button @click="triggerCameraUpload" class="wallet-upload-btn" v-if="walletPhotos.length < 4" title="直接開啟相機拍照上傳">
+              <i class="fa fa-camera"></i> 拍照 ({{ walletPhotos.length }}/4)
+            </button>
+            <button @click="triggerPhotoUpload" class="wallet-upload-btn btn-secondary" v-if="walletPhotos.length < 4" title="選擇相冊或雲端硬碟檔案">
+              <i class="fa fa-file-image-o"></i> 選擇
             </button>
             <input type="file" ref="walletPhotoInput" @change="handleWalletPhotoUpload" style="display: none;" accept="image/*">
+            <input type="file" ref="walletCameraInput" @change="handleWalletPhotoUpload" style="display: none;" accept="image/*" capture="environment">
           </div>
         </div>
         
@@ -3592,6 +3606,9 @@
         },
         triggerPhotoUpload() {
           this.$refs.walletPhotoInput.click();
+        },
+        triggerCameraUpload() {
+          this.$refs.walletCameraInput.click();
         },
         handleWalletPhotoUpload(event) {
           const file = event.target.files[0];
