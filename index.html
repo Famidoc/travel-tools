@@ -2828,6 +2828,9 @@
 
     <div v-if="activeTab === 'data'" class="data-management">
         <h4 class="w3-center" style="font-weight: bold;">【 資料管理 】</h4>
+        <div style="text-align: center; font-size: 11px; color: var(--text-secondary); margin-bottom: 15px; opacity: 0.8;">
+          應用程式版本: v2.0.33
+        </div>
         <p style="text-align: left;">
           您可以將目前的「行程資料」與「待辦備忘」匯出成一個 JSON 檔案。
           這個檔案可以備份您的資料，或傳送給同樣使用此工具的朋友，讓他們匯入。
@@ -4631,15 +4634,8 @@ ${this.sourceText}
           this.fallbackDownload(jsonString);
         },
         copyToClipboardFallback(jsonString) {
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(jsonString).then(() => {
-              alert('由於您的設備限制了檔案下載，已將備份 JSON 資料（已自動安全過濾憑證照）複製到您的剪貼簿！\n\n您可以將其貼上到備忘錄中保存。');
-            }).catch(err => {
-              this.legacyCopyFallback(jsonString);
-            });
-          } else {
-            this.legacyCopyFallback(jsonString);
-          }
+          // 行動端直接使用穩定且同步的傳統複製機制，避免瀏覽器 async clipboard promise 掛起問題
+          this.legacyCopyFallback(jsonString);
         },
         legacyCopyFallback(text) {
           try {
