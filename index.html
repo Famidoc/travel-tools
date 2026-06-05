@@ -2829,7 +2829,7 @@
     <div v-if="activeTab === 'data'" class="data-management">
         <h4 class="w3-center" style="font-weight: bold;">【 資料管理 】</h4>
         <div style="text-align: center; font-size: 11px; color: var(--text-secondary); margin-bottom: 15px; opacity: 0.8;">
-          應用程式版本: v2.0.37
+          應用程式version: v2.0.38
         </div>
         <p style="text-align: left;">
           您可以將目前的「行程資料」與「待辦備忘」匯出成一個 JSON 檔案。
@@ -3085,31 +3085,49 @@
 
     <!-- 備份資料匯出與複製彈窗 -->
     <div v-if="showBackupPopup" class="popup show" @click.self="showBackupPopup = false">
-      <div class="popup-content" style="max-width: 95%; width: 450px; box-sizing: border-box;">
+      <div class="popup-content" style="max-width: 95%; width: 480px; box-sizing: border-box;">
         <button class='w3-right' @click="showBackupPopup = false" style="background: transparent; border: none; font-size: 18px; cursor: pointer; color: var(--text-secondary);"><i class="fa fa-times" aria-hidden="true"></i></button>
-        <h3 style="font-weight: bold; margin-top: 0; margin-bottom: 20px; color: var(--text-primary);"><i class="fa fa-download" style="margin-right: 8px;"></i>匯出與備份資料</h3>
-        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.5;">
-          由於您的設備或瀏覽器限制，無法自動下載。請選擇直接下載 JSON 檔案，或將備份文字複製保存。
+        <h3 style="font-weight: bold; margin-top: 0; margin-bottom: 15px; color: var(--text-primary);"><i class="fa fa-download" style="margin-right: 8px;"></i>匯出與備份資料</h3>
+        
+        <!-- 憑證匯出詢問勾選框 -->
+        <div style="background-color: var(--bg-color); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 15px; display: flex; align-items: flex-start; gap: 10px;">
+          <input type="checkbox" id="includeWalletPhotos" v-model="exportIncludeWallet" style="margin-top: 3px; cursor: pointer; width: 16px; height: 16px;">
+          <label for="includeWalletPhotos" style="cursor: pointer; font-size: 13px; color: var(--text-primary); font-weight: bold; line-height: 1.4;">
+            包含【離線憑證錢包】照片資料 (個人備份同步用)<br>
+            <span style="font-size: 11px; color: var(--text-secondary); font-weight: normal; display: block; margin-top: 3px;">
+              ⚠️ 勾選此項會匯出重要憑證照（檔名為 <code>travel-tools-full-backup.json</code>）。分享給他人時請<b>取消勾選</b>以保護個人隱私（排除照片檔名為 <code>travel-tools-data.json</code>）。
+            </span>
+          </label>
+        </div>
+
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; line-height: 1.5;">
+          您可以使用下方按鈕直接下載檔案、開啟系統分享（可直接儲存至 Google 雲端硬碟），或是複製備份文字。
         </p>
+
         <textarea 
           readonly 
           ref="backupTextarea" 
           @click="selectBackupText" 
-          style="width: 100%; height: 150px; font-family: monospace; font-size: 11px; padding: 10px; box-sizing: border-box; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-color); color: var(--text-primary); resize: none; outline: none; margin-bottom: 15px;"
-        >{{ backupJsonString }}</textarea>
+          style="width: 100%; height: 130px; font-family: monospace; font-size: 11px; padding: 10px; box-sizing: border-box; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-color); color: var(--text-primary); resize: none; outline: none; margin-bottom: 12px;"
+        >{{ exportJsonData.jsonString }}</textarea>
         
-        <p style="font-size: 12px; color: var(--text-secondary); margin-top: 0; margin-bottom: 15px; line-height: 1.4;">
-          <span style="color: #ef4444; font-weight: bold;">⚠️ 複製提示：</span>若貼到 LINE 聊天室，資料會因為 LINE 單則訊息 10,000 字上限而被自動截斷。複製後請改貼到<strong>「手機備忘錄」</strong>或 LINE 的<strong>「記事本」</strong>中保存。
+        <p style="font-size: 11px; color: var(--text-secondary); margin-top: 0; margin-bottom: 15px; line-height: 1.4;">
+          <span style="color: #ef4444; font-weight: bold;">⚠️ 提示：</span><br>
+          1. 系統分享可選擇<b>「儲存至雲端硬碟」</b>以指定 Google Drive 資料夾。<br>
+          2. 若直接貼到 LINE 聊天室，資料會因為 LINE 單則 10,000 字上限而被自動截斷，請改貼到手機備忘錄或 LINE 記事本中。
         </p>
 
         <div style="display: flex; gap: 8px; justify-content: flex-end; border-top: 1px solid var(--border-color); padding-top: 15px; flex-wrap: wrap;">
-          <button @click="downloadBackupFile" style="background-color: var(--primary-color); border: none; border-radius: var(--radius-sm); padding: 8px 16px; color: white; font-weight: bold; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='var(--primary-hover)'" onmouseout="this.style.backgroundColor='var(--primary-color)'">
-            <i class="fa fa-download"></i> 下載 JSON 檔案
+          <button @click="downloadBackupFile" style="background-color: var(--primary-color); border: none; border-radius: var(--radius-sm); padding: 8px 14px; color: white; font-weight: bold; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='var(--primary-hover)'" onmouseout="this.style.backgroundColor='var(--primary-color)'">
+            <i class="fa fa-download"></i> 下載檔案
           </button>
-          <button @click="copyBackupText" style="background-color: #10b981; border: none; border-radius: var(--radius-sm); padding: 8px 16px; color: white; font-weight: bold; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+          <button @click="shareBackupFile" style="background-color: #3b82f6; border: none; border-radius: var(--radius-sm); padding: 8px 14px; color: white; font-weight: bold; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#2563eb'" onmouseout="this.style.backgroundColor='#3b82f6'">
+            <i class="fa fa-share-alt"></i> 系統分享
+          </button>
+          <button @click="copyBackupText" style="background-color: #10b981; border: none; border-radius: var(--radius-sm); padding: 8px 14px; color: white; font-weight: bold; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
             <i class="fa fa-copy"></i> 複製全部
           </button>
-          <button @click="showBackupPopup = false" class="close-btn" style="padding: 8px 16px; margin: 0; font-size: 13px;">
+          <button @click="showBackupPopup = false" class="close-btn" style="padding: 8px 14px; margin: 0; font-size: 13px;">
             關閉
           </button>
         </div>
@@ -3266,6 +3284,7 @@
           showTripManager: false,
           showBackupPopup: false,
           backupJsonString: '',
+          exportIncludeWallet: false,
           
           // --- Gemini 翻譯設定與常用範本狀態 ---
           geminiApiKey: localStorage.getItem('gemini_api_key') || '',
@@ -3326,6 +3345,25 @@
         }
       },
       computed: {
+        exportJsonData() {
+          const sanitizedTrips = JSON.parse(JSON.stringify(this.trips));
+          if (!this.exportIncludeWallet) {
+            sanitizedTrips.forEach(trip => {
+              delete trip.walletPhotos;
+            });
+          }
+          const dataToExport = {
+            version: '2.0',
+            activeTripId: this.activeTripId,
+            trips: sanitizedTrips,
+            itinerary: this.itineraryText,
+            todos: this.todos
+          };
+          return {
+            jsonString: JSON.stringify(dataToExport, null, 2),
+            fileName: this.exportIncludeWallet ? 'travel-tools-full-backup.json' : 'travel-tools-data.json'
+          };
+        },
         formattedLocalTime() {
           return this.formatTime(this.localTime, this.fromTimezone);
         },
@@ -4616,58 +4654,14 @@ ${this.sourceText}
           }
         },
         exportData() {
-          // 深拷貝 trips，並排除 walletPhotos 以防止個人證件隱私洩露，同時能將 JSON 體積縮小 95% 以上
-          const sanitizedTrips = JSON.parse(JSON.stringify(this.trips));
-          sanitizedTrips.forEach(trip => {
-            delete trip.walletPhotos;
+          // 初始化勾選狀態（預設不包含憑證照以保護隱私）
+          this.exportIncludeWallet = false;
+          this.backupJsonString = this.exportJsonData.jsonString;
+          // 彈出匯出面板
+          this.showBackupPopup = true;
+          this.$nextTick(() => {
+            this.selectBackupText();
           });
-
-          const dataToExport = {
-            version: '2.0',
-            activeTripId: this.activeTripId,
-            trips: sanitizedTrips,
-            // 兼容舊版：
-            itinerary: this.itineraryText,
-            todos: this.todos
-          };
-          const jsonString = JSON.stringify(dataToExport, null, 2); // Pretty print JSON
-
-          // 偵測是否為行動裝置
-          const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-          // 1. 行動裝置優先嘗試 Web Share API（解決手機 PWA/WebView 被阻擋下載的問題）
-          if (isMobile) {
-            try {
-              // 使用 text/plain MIME 類型以繞過 iOS Safari 與 Android 系統對於 .json 檔案分享的限制，檔名依然維持 .json
-              const file = new File([jsonString], 'travel-tools-data.json', { type: 'text/plain' });
-              if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                navigator.share({
-                  files: [file],
-                  title: 'Travel Tools 備份資料',
-                  text: '這是我的 Travel Tools 旅遊工具箱備份資料（已自動排除個人憑證照片）。'
-                }).then(() => {
-                  console.log('Share successful');
-                }).catch(err => {
-                  // 如果是使用者手動取消(AbortError)，則不做任何事
-                  if (err.name !== 'AbortError') {
-                    console.warn('Share failed, falling back to clipboard:', err);
-                    this.copyToClipboardFallback(jsonString);
-                  }
-                });
-                return;
-              }
-            } catch (shareErr) {
-              console.warn('Web Share failed on mobile, trying clipboard:', shareErr);
-              this.copyToClipboardFallback(jsonString);
-              return;
-            }
-            // 如果手機端不支援分享，直接使用剪貼簿複製（不採用容易被 WebView 阻擋的 fallbackDownload）
-            this.copyToClipboardFallback(jsonString);
-            return;
-          }
-
-          // 2. 電腦端直接「同步」執行標準下載，保留使用者手勢 (User Gesture)
-          this.fallbackDownload(jsonString);
         },
         copyToClipboardFallback(jsonString) {
           // 行動端直接使用穩定且同步的傳統複製機制，避免瀏覽器 async clipboard promise 掛起問題
@@ -4712,13 +4706,13 @@ ${this.sourceText}
             });
           }
         },
-        fallbackDownload(jsonString) {
+        fallbackDownload(jsonString, fileName = 'travel-tools-data.json') {
           try {
             const blob = new Blob([jsonString], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'travel-tools-data.json';
+            a.download = fileName;
             a.style.display = 'none';
             document.body.appendChild(a);
             a.click();
@@ -4846,7 +4840,34 @@ ${this.sourceText}
           }
         },
         downloadBackupFile() {
-          this.fallbackDownload(this.backupJsonString);
+          this.fallbackDownload(this.exportJsonData.jsonString, this.exportJsonData.fileName);
+        },
+        shareBackupFile() {
+          const { jsonString, fileName } = this.exportJsonData;
+          try {
+            const file = new File([jsonString], fileName, { type: 'text/plain' });
+            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+              navigator.share({
+                files: [file],
+                title: 'Travel Tools 備份資料',
+                text: this.exportIncludeWallet 
+                  ? '這是我的 Travel Tools 旅遊工具箱【完整備份檔案】（包含離線憑證照片）。' 
+                  : '這是我的 Travel Tools 旅遊工具箱【行程分享檔案】（已排除個人憑證照片）。'
+              }).then(() => {
+                console.log('Share successful');
+              }).catch(err => {
+                if (err.name !== 'AbortError') {
+                  alert('分享失敗，您的設備或此 App 環境限制了系統分享。請改用下載或複製功能。');
+                  console.warn('Share failed:', err);
+                }
+              });
+            } else {
+              alert('您的瀏覽器不支援檔案分享功能。請點擊「下載檔案」或「複製全部」。');
+            }
+          } catch (e) {
+            alert('分享失敗，請使用下載或複製功能。');
+            console.error('Share error:', e);
+          }
         },
         // --- 多行程管理相關方法 ---
         saveCurrentTripData() {
