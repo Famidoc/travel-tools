@@ -4586,15 +4586,58 @@ ${this.sourceText}
             todos: this.todos
           };
           const jsonString = JSON.stringify(dataToExport, null, 2); // Pretty print JSON
-          const blob = new Blob([jsonString], { type: 'application/json' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'travel-tools-data.json';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
+
+          // 1. 優先嘗試 Web Share API（專門修復手機端 PWA/WebView 下載被阻擋的問題）
+          try {
+            const file = new File([jsonString], 'travel-tools-data.json', { type: 'application/json' });
+            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+              navigator.share({
+                files: [file],
+                title: 'Travel Tools 備份資料',
+                text: '這是我的 Travel Tools 旅遊工具箱備份資料。'
+              }).then(() => {
+                console.log('Share successful');
+              }).catch(err => {
+                // 如果是使用者手動取消(AbortError/NotAllowedError)，則不做任何事
+                if (err.name !== 'AbortError' && err.name !== 'NotAllowedError') {
+                  console.warn('Share failed, falling back to download:', err);
+                  this.fallbackDownload(jsonString);
+                } else {
+                  console.log('Share aborted by user');
+                }
+              });
+              return;
+            }
+          } catch (shareErr) {
+            console.warn('Web Share detection error, using standard download:', shareErr);
+          }
+
+          // 2. 電腦版或不支援 Web Share 時，使用標準 Blob 下載
+          this.fallbackDownload(jsonString);
+        },
+        fallbackDownload(jsonString) {
+          try {
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'travel-tools-data.json';
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+            }, 100);
+          } catch (e) {
+            console.error('Download fallback failed:', e);
+            // 3. 極致備援：複製到剪貼簿
+            navigator.clipboard.writeText(jsonString).then(() => {
+              alert('由於瀏覽器限制下載，已將備份 JSON 資料複製到您的剪貼簿！\n\n您可以將其貼上到手機備忘錄中保存。');
+            }).catch(err => {
+              alert('匯出失敗，您的設備不支援下載。');
+            });
+          }
         },
         triggerImport() {
           this.$refs.fileInput.click();
