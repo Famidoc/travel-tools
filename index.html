@@ -2286,7 +2286,7 @@
             <button @click="triggerPhotoUpload" class="wallet-upload-btn btn-secondary" v-if="walletPhotos.length < 4" title="選擇相冊或雲端硬碟檔案">
               <i class="fa fa-file-image-o"></i> 選擇
             </button>
-            <input type="file" ref="walletPhotoInput" @change="handleWalletPhotoUpload" style="display: none;" accept="image/*">
+            <input type="file" ref="walletPhotoInput" @change="handleWalletPhotoUpload" style="display: none;" accept="image/*,application/pdf">
             <input type="file" ref="walletCameraInput" @change="handleWalletPhotoUpload" style="display: none;" accept="image/*" capture="environment">
           </div>
         </div>
@@ -3614,7 +3614,8 @@
           const file = event.target.files[0];
           if (!file) return;
 
-          if (!file.type.startsWith('image/')) {
+          const isImg = file.type.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp)$/i.test(file.name);
+          if (!isImg) {
             alert('請上傳圖片檔案！');
             return;
           }
