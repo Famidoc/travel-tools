@@ -4631,11 +4631,50 @@ ${this.sourceText}
           this.fallbackDownload(jsonString);
         },
         copyToClipboardFallback(jsonString) {
-          navigator.clipboard.writeText(jsonString).then(() => {
-            alert('由於您的設備限制了檔案下載，已將備份 JSON 資料（已自動安全過濾憑證照）複製到您的剪貼簿！\n\n您可以將其貼上到備忘錄中保存。');
-          }).catch(err => {
-            alert('匯出失敗，您的設備不支援下載與複製。');
-          });
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(jsonString).then(() => {
+              alert('由於您的設備限制了檔案下載，已將備份 JSON 資料（已自動安全過濾憑證照）複製到您的剪貼簿！\n\n您可以將其貼上到備忘錄中保存。');
+            }).catch(err => {
+              this.legacyCopyFallback(jsonString);
+            });
+          } else {
+            this.legacyCopyFallback(jsonString);
+          }
+        },
+        legacyCopyFallback(text) {
+          try {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            // 隱藏 textarea
+            textArea.style.position = "fixed";
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.width = "2em";
+            textArea.style.height = "2em";
+            textArea.style.padding = "0";
+            textArea.style.border = "none";
+            textArea.style.outline = "none";
+            textArea.style.boxShadow = "none";
+            textArea.style.background = "transparent";
+            
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            textArea.setSelectionRange(0, 99999); // 針對行動端選取
+            
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            if (successful) {
+              alert('由於您的設備限制了檔案下載，已將備份 JSON 資料（已自動安全過濾憑證照）複製到您的剪貼簿！\n\n您可以將其貼上到備忘錄中保存。');
+            } else {
+              throw new Error('execCommand copy returned false');
+            }
+          } catch (err) {
+            console.error('Legacy copy failed:', err);
+            // 終極備援：彈出提示框，讓使用者手動選取複製，100% 成功不中斷
+            prompt('由於您的瀏覽器限制了檔案下載與自動複製，請全選並複製下方框內的所有文字進行備份：', text);
+          }
         },
         fallbackDownload(jsonString) {
           try {
