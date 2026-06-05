@@ -2829,7 +2829,7 @@
     <div v-if="activeTab === 'data'" class="data-management">
         <h4 class="w3-center" style="font-weight: bold;">【 資料管理 】</h4>
         <div style="text-align: center; font-size: 11px; color: var(--text-secondary); margin-bottom: 15px; opacity: 0.8;">
-          應用程式version: v2.0.38
+          應用程式版本: v2.0.39
         </div>
         <p style="text-align: left;">
           您可以將目前的「行程資料」與「待辦備忘」匯出成一個 JSON 檔案。
@@ -3113,7 +3113,7 @@
         
         <p style="font-size: 11px; color: var(--text-secondary); margin-top: 0; margin-bottom: 15px; line-height: 1.4;">
           <span style="color: #ef4444; font-weight: bold;">⚠️ 提示：</span><br>
-          1. 系統分享可選擇<b>「儲存至雲端硬碟」</b>以指定 Google Drive 資料夾。<br>
+          <span v-if="isMobile">1. 點擊「系統分享」若支援，可選<b>「儲存至雲端硬碟」</b>以指定 Google Drive 資料夾。若分享失敗，代表您的手機系統限制了安裝後的 PWA 分享權限，請改用「下載檔案」功能並手動上傳 Google Drive。<br></span>
           2. 若直接貼到 LINE 聊天室，資料會因為 LINE 單則 10,000 字上限而被自動截斷，請改貼到手機備忘錄或 LINE 記事本中。
         </p>
 
@@ -3121,7 +3121,7 @@
           <button @click="downloadBackupFile" style="background-color: var(--primary-color); border: none; border-radius: var(--radius-sm); padding: 8px 14px; color: white; font-weight: bold; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='var(--primary-hover)'" onmouseout="this.style.backgroundColor='var(--primary-color)'">
             <i class="fa fa-download"></i> 下載檔案
           </button>
-          <button @click="shareBackupFile" style="background-color: #3b82f6; border: none; border-radius: var(--radius-sm); padding: 8px 14px; color: white; font-weight: bold; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#2563eb'" onmouseout="this.style.backgroundColor='#3b82f6'">
+          <button v-if="isMobile" @click="shareBackupFile" style="background-color: #3b82f6; border: none; border-radius: var(--radius-sm); padding: 8px 14px; color: white; font-weight: bold; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#2563eb'" onmouseout="this.style.backgroundColor='#3b82f6'">
             <i class="fa fa-share-alt"></i> 系統分享
           </button>
           <button @click="copyBackupText" style="background-color: #10b981; border: none; border-radius: var(--radius-sm); padding: 8px 14px; color: white; font-weight: bold; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
@@ -3285,6 +3285,7 @@
           showBackupPopup: false,
           backupJsonString: '',
           exportIncludeWallet: false,
+          isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
           
           // --- Gemini 翻譯設定與常用範本狀態 ---
           geminiApiKey: localStorage.getItem('gemini_api_key') || '',
@@ -4857,7 +4858,7 @@ ${this.sourceText}
                 console.log('Share successful');
               }).catch(err => {
                 if (err.name !== 'AbortError') {
-                  alert('分享失敗，您的設備或此 App 環境限制了系統分享。請改用下載或複製功能。');
+                  alert('系統分享失敗（部分手機系統出於安全考量，限制了安裝後的 PWA 檔案分享權限）。\n\n建議您點擊「下載檔案」將備份儲存至手機中，再開啟您的 Google 雲端硬碟 App 將檔案上傳至指定資料夾。');
                   console.warn('Share failed:', err);
                 }
               });
@@ -4865,7 +4866,7 @@ ${this.sourceText}
               alert('您的瀏覽器不支援檔案分享功能。請點擊「下載檔案」或「複製全部」。');
             }
           } catch (e) {
-            alert('分享失敗，請使用下載或複製功能。');
+            alert('系統分享失敗（您的設備限制了網頁直接分享檔案）。\n\n建議您點擊「下載檔案」將備份儲存至手機中，再開啟您的 Google 雲端硬碟 App 將檔案上傳至指定資料夾。');
             console.error('Share error:', e);
           }
         },
