@@ -2829,7 +2829,7 @@
     <div v-if="activeTab === 'data'" class="data-management">
         <h4 class="w3-center" style="font-weight: bold;">【 資料管理 】</h4>
         <div style="text-align: center; font-size: 11px; color: var(--text-secondary); margin-bottom: 15px; opacity: 0.8;">
-          應用程式版本: v2.0.34
+          應用程式版本: v2.0.35
         </div>
         <p style="text-align: left;">
           您可以將目前的「行程資料」與「待辦備忘」匯出成一個 JSON 檔案。
@@ -3082,6 +3082,31 @@
         </div>
       </div>
     </div>
+
+    <!-- 備份資料手動複製彈窗 -->
+    <div v-if="showBackupPopup" class="popup show" @click.self="showBackupPopup = false">
+      <div class="popup-content" style="max-width: 95%; width: 450px; box-sizing: border-box;">
+        <button class='w3-right' @click="showBackupPopup = false" style="background: transparent; border: none; font-size: 18px; cursor: pointer; color: var(--text-secondary);"><i class="fa fa-times" aria-hidden="true"></i></button>
+        <h3 style="font-weight: bold; margin-top: 0; margin-bottom: 20px; color: var(--text-primary);"><i class="fa fa-copy" style="margin-right: 8px;"></i>備份資料複製</h3>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.5;">
+          由於您的設備或瀏覽器限制，無法自動下載或複製檔案。請<strong>長按下方框內的所有文字</strong>並點選<strong>「全選」與「複製」</strong>，然後貼上到備忘錄或 LINE 中保存。
+        </p>
+        <textarea 
+          readonly 
+          ref="backupTextarea" 
+          @click="selectBackupText" 
+          style="width: 100%; height: 180px; font-family: monospace; font-size: 11px; padding: 10px; box-sizing: border-box; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-color); color: var(--text-primary); resize: none; outline: none; margin-bottom: 15px;"
+        >{{ backupJsonString }}</textarea>
+        <div style="display: flex; gap: 8px; justify-content: flex-end; border-top: 1px solid var(--border-color); padding-top: 15px;">
+          <button @click="copyBackupText" style="background-color: var(--primary-color); border: none; border-radius: var(--radius-sm); padding: 8px 16px; color: white; font-weight: bold; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='var(--primary-hover)'" onmouseout="this.style.backgroundColor='var(--primary-color)'">
+            <i class="fa fa-copy"></i> 複製全部
+          </button>
+          <button @click="showBackupPopup = false" class="close-btn" style="padding: 8px 16px; margin: 0; font-size: 13px;">
+            關閉
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
   <script>
     const app = Vue.createApp({      
@@ -3231,6 +3256,8 @@
           activeTripId: activeTripId,
           newTripName: '',
           showTripManager: false,
+          showBackupPopup: false,
+          backupJsonString: '',
           
           // --- Gemini 翻譯設定與常用範本狀態 ---
           geminiApiKey: localStorage.getItem('gemini_api_key') || '',
@@ -4667,9 +4694,13 @@ ${this.sourceText}
               throw new Error('execCommand copy returned false');
             }
           } catch (err) {
-            console.error('Legacy copy failed:', err);
-            // 終極備援：彈出提示框，讓使用者手動選取複製，100% 成功不中斷
-            prompt('由於您的瀏覽器限制了檔案下載與自動複製，請全選並複製下方框內的所有文字進行備份：', text);
+            console.error('Legacy copy failed, showing backup dialog:', err);
+            // 終極備援：不再使用會截斷文字的 prompt()，而是彈出自訂的 HTML 彈窗讓使用者手動選取複製，100% 成功且不截斷
+            this.backupJsonString = text;
+            this.showBackupPopup = true;
+            this.$nextTick(() => {
+              this.selectBackupText();
+            });
           }
         },
         fallbackDownload(jsonString) {
@@ -4778,6 +4809,32 @@ ${this.sourceText}
             }
           };
           reader.readAsText(file);
+        },
+        selectBackupText() {
+          const textarea = this.$refs.backupTextarea;
+          if (textarea) {
+            textarea.focus();
+            textarea.select();
+            textarea.setSelectionRange(0, 99999);
+          }
+        },
+        copyBackupText() {
+          const textarea = this.$refs.backupTextarea;
+          if (textarea) {
+            textarea.focus();
+            textarea.select();
+            textarea.setSelectionRange(0, 99999);
+            try {
+              const successful = document.execCommand('copy');
+              if (successful) {
+                alert('備份資料已成功複製到剪貼簿！');
+              } else {
+                alert('複製失敗，請長按文字區塊手動進行「全選」並「複製」。');
+              }
+            } catch (err) {
+              alert('複製失敗，請長按文字區塊手動進行「全選」並「複製」。');
+            }
+          }
         },
         // --- 多行程管理相關方法 ---
         saveCurrentTripData() {
