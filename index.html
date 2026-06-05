@@ -2408,14 +2408,10 @@
           </div>
           <!-- 限制最大上傳 4 張相片 -->
           <div @click.stop v-show="isWalletExpanded" style="display: flex; gap: 8px; align-items: center;">
-            <button @click="triggerCameraUpload" class="wallet-upload-btn" v-if="walletPhotos.length < 4" title="直接開啟相機拍照上傳">
-              <i class="fa fa-camera"></i> 拍照 ({{ walletPhotos.length }}/4)
-            </button>
-            <button @click="triggerPhotoUpload" class="wallet-upload-btn btn-secondary" v-if="walletPhotos.length < 4" title="選擇相冊或雲端硬碟檔案">
-              <i class="fa fa-file-image-o"></i> 選擇
+            <button @click="triggerPhotoUpload" class="wallet-upload-btn" v-if="walletPhotos.length < 4" title="選擇相簿、拍照或雲端硬碟檔案">
+              <i class="fa fa-file-image-o"></i> 選擇 ({{ walletPhotos.length }}/4)
             </button>
             <input type="file" ref="walletPhotoInput" @change="handleWalletPhotoUpload" style="display: none;" accept="image/*,application/pdf">
-            <input type="file" ref="walletCameraInput" @change="handleWalletPhotoUpload" style="display: none;" accept="image/*" capture="environment">
           </div>
         </div>
         
@@ -3756,9 +3752,6 @@
         },
         triggerPhotoUpload() {
           this.$refs.walletPhotoInput.click();
-        },
-        triggerCameraUpload() {
-          this.$refs.walletCameraInput.click();
         },
         handleWalletPhotoUpload(event) {
           const file = event.target.files[0];
