@@ -4577,10 +4577,16 @@ ${this.sourceText}
           }
         },
         exportData() {
+          // 深拷貝 trips，並排除 walletPhotos 以防止個人證件隱私洩露，同時能將 JSON 體積縮小 95% 以上
+          const sanitizedTrips = JSON.parse(JSON.stringify(this.trips));
+          sanitizedTrips.forEach(trip => {
+            delete trip.walletPhotos;
+          });
+
           const dataToExport = {
             version: '2.0',
             activeTripId: this.activeTripId,
-            trips: this.trips,
+            trips: sanitizedTrips,
             // 兼容舊版：
             itinerary: this.itineraryText,
             todos: this.todos
@@ -4593,16 +4599,17 @@ ${this.sourceText}
           // 1. 行動裝置優先嘗試 Web Share API（解決手機 PWA/WebView 被阻擋下載的問題）
           if (isMobile) {
             try {
-              const file = new File([jsonString], 'travel-tools-data.json', { type: 'application/json' });
+              // 使用 text/plain MIME 類型以繞過 iOS Safari 與 Android 系統對於 .json 檔案分享的限制，檔名依然維持 .json
+              const file = new File([jsonString], 'travel-tools-data.json', { type: 'text/plain' });
               if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
                 navigator.share({
                   files: [file],
                   title: 'Travel Tools 備份資料',
-                  text: '這是我的 Travel Tools 旅遊工具箱備份資料。'
+                  text: '這是我的 Travel Tools 旅遊工具箱備份資料（已自動排除個人憑證照片）。'
                 }).then(() => {
                   console.log('Share successful');
                 }).catch(err => {
-                  // 如果不是使用者取消，則複製到剪貼簿作為降級（因為手機端異步下載必定被阻擋）
+                  // 如果不是使用者手動取消，則複製到剪貼簿作為最後防線
                   if (err.name !== 'AbortError' && err.name !== 'NotAllowedError') {
                     console.warn('Share failed, falling back to clipboard:', err);
                     this.copyToClipboardFallback(jsonString);
@@ -4615,6 +4622,9 @@ ${this.sourceText}
               this.copyToClipboardFallback(jsonString);
               return;
             }
+            // 如果手機端不支援分享，直接使用剪貼簿複製（不採用容易被 WebView 阻擋的 fallbackDownload）
+            this.copyToClipboardFallback(jsonString);
+            return;
           }
 
           // 2. 電腦端直接「同步」執行標準下載，保留使用者手勢 (User Gesture)
@@ -4622,7 +4632,7 @@ ${this.sourceText}
         },
         copyToClipboardFallback(jsonString) {
           navigator.clipboard.writeText(jsonString).then(() => {
-            alert('由於您的設備限制了檔案下載，已將備份 JSON 資料複製到您的剪貼簿！\n\n您可以將其貼上到手機備忘錄中保存。');
+            alert('由於您的設備限制了檔案下載，已將備份 JSON 資料（已自動安全過濾憑證照）複製到您的剪貼簿！\n\n您可以將其貼上到備忘錄中保存。');
           }).catch(err => {
             alert('匯出失敗，您的設備不支援下載與複製。');
           });
