@@ -1271,6 +1271,15 @@
       padding: 16px;
       margin-top: 20px;
       box-shadow: var(--shadow-sm);
+      transition: all 0.3s ease;
+    }
+
+    .travel-wallet-card.collapsed {
+      padding: 12px 16px;
+    }
+
+    .travel-wallet-card.collapsed .wallet-header {
+      margin-bottom: 0;
     }
 
     .wallet-header {
@@ -2252,20 +2261,23 @@
       ></div>
 
       <!-- 🎫 離線憑證錢包卡片 -->
-      <div class="travel-wallet-card">
-        <div class="wallet-header">
+      <div class="travel-wallet-card" :class="{ collapsed: !isWalletExpanded }">
+        <div class="wallet-header" @click="isWalletExpanded = !isWalletExpanded" style="cursor: pointer; user-select: none;">
           <div class="wallet-title">
             <i class="fa fa-ticket" style="color: var(--primary-color);"></i>
             <span>🎫 離線憑證錢包 (Travel Wallet)</span>
+            <i class="fa" :class="isWalletExpanded ? 'fa-chevron-up' : 'fa-chevron-down'" style="margin-left: 6px; font-size: 11px; opacity: 0.7;"></i>
           </div>
           <!-- 限制最大上傳 4 張相片 -->
-          <button @click="triggerPhotoUpload" class="wallet-upload-btn" v-if="walletPhotos.length < 4" title="上傳新憑證相片">
-            <i class="fa fa-plus"></i> 上傳相片 ({{ walletPhotos.length }}/4)
-          </button>
-          <input type="file" ref="walletPhotoInput" @change="handleWalletPhotoUpload" style="display: none;" accept="image/*">
+          <div @click.stop v-show="isWalletExpanded">
+            <button @click="triggerPhotoUpload" class="wallet-upload-btn" v-if="walletPhotos.length < 4" title="上傳新憑證相片">
+              <i class="fa fa-plus"></i> 上傳相片 ({{ walletPhotos.length }}/4)
+            </button>
+            <input type="file" ref="walletPhotoInput" @change="handleWalletPhotoUpload" style="display: none;" accept="image/*">
+          </div>
         </div>
         
-        <div class="wallet-photo-grid">
+        <div class="wallet-photo-grid" v-show="isWalletExpanded">
           <div class="wallet-photo-item" v-for="(photo, index) in walletPhotos" :key="photo.id" @click="openLightbox(photo.base64, photo.name)">
             <img :src="photo.base64" :alt="photo.name">
             <button @click.stop="deleteWalletPhoto(photo.id)" class="wallet-photo-delete" title="刪除此憑證">
@@ -3025,6 +3037,7 @@
           showCountdownModal: false,
           countdownText: null,
           walletPhotos: currentTrip.walletPhotos || [],
+          isWalletExpanded: false,
           showLightbox: false,
           lightboxPhoto: null,
           newCustomTemplate: { title: '', text: '' },
