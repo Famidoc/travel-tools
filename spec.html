@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Travel Tools 系統技術規格書</title>
+  <!-- 引入 Google Fonts & Font Awesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  
+  <style>
+    /* 現代化設計系統變數 */
+    :root {
+      --primary-color: #3b82f6;
+      --primary-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      --accent-color: #f59e0b;
+      --bg-color: #0f172a;
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-highlight: #60a5fa;
+      --sidebar-bg: #1e293b;
+      --code-bg: #0b0f19;
+      --success-color: #10b981;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      line-height: 1.6;
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* 側邊導覽列 */
+    aside {
+      width: 280px;
+      background-color: var(--sidebar-bg);
+      border-right: 1px solid var(--card-border);
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      z-index: 100;
+      overflow-y: auto;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      background: var(--primary-gradient);
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 20px;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .logo-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s;
+    }
+
+    .nav-links a:hover, .nav-links a.active {
+      color: white;
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-links a.active {
+      border-left: 3px solid var(--primary-color);
+      background-color: rgba(59, 130, 246, 0.1);
+    }
+
+    /* 主要內容區 */
+    main {
+      margin-left: 280px;
+      flex: 1;
+      padding: 40px 60px;
+      max-width: 1200px;
+    }
+
+    header {
+      margin-bottom: 40px;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 24px;
+    }
+
+    header h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 36px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      background: linear-gradient(to right, #ffffff, #60a5fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .meta-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background-color: rgba(59, 130, 246, 0.15);
+      color: var(--text-highlight);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    /* 卡片與文字區塊 */
+    section {
+      margin-bottom: 50px;
+      scroll-margin-top: 40px;
+    }
+
+    h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-left: 4px solid var(--primary-color);
+      padding-left: 12px;
+    }
+
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 24px 0 12px 0;
+      color: var(--text-highlight);
+    }
+
+    p {
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      font-size: 15px;
+    }
+
+    /* 表格 */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 14px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    th {
+      background-color: rgba(255, 255, 255, 0.03);
+      color: white;
+      font-weight: 600;
+    }
+
+    td {
+      color: var(--text-muted);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    code {
+      font-family: 'Courier New', Courier, monospace;
+      background-color: var(--code-bg);
+      color: #e06c75;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    /* 程式碼區塊 */
+    pre {
+      background-color: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      overflow-x: auto;
+      margin: 20px 0;
+    }
+
+    pre code {
+      color: #abb2bf;
+      background: none;
+      padding: 0;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .json-key { color: #e06c75; }
+    .json-string { color: #98c379; }
+    .json-value { color: #d19a66; }
+
+    /* Alert / Box */
+    .note-box {
+      background: rgba(59, 130, 246, 0.08);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      border-left: 4px solid var(--primary-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin: 20px 0;
+      font-size: 14px;
+    }
+
+    .note-box strong {
+      color: white;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* 響應式設計 */
+    @media (max-width: 992px) {
+      aside {
+        width: 60px;
+        padding: 15px 10px;
+      }
+      .logo-title, aside span {
+        display: none;
+      }
+      main {
+        margin-left: 60px;
+        padding: 30px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      main {
+        padding: 20px;
+      }
+      header h1 {
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 側邊導覽 -->
+  <aside>
+    <div class="logo-container">
+      <div class="logo-icon"><i class="fa fa-cogs"></i></div>
+      <div class="logo-title">Travel Tools</div>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#overview" class="active"><i class="fa fa-info-circle"></i> <span>系統概述</span></a></li>
+      <li><a href="#architecture"><i class="fa fa-sitemap"></i> <span>技術架構</span></a></li>
+      <li><a href="#modules"><i class="fa fa-cubes"></i> <span>功能模組規格</span></a></li>
+      <li><a href="#storage"><i class="fa fa-database"></i> <span>本地儲存結構</span></a></li>
+      <li><a href="#pwa"><i class="fa fa-wifi"></i> <span>PWA 與離線快取</span></a></li>
+      <li><a href="#guide"><i class="fa fa-wrench"></i> <span>維護與擴充指南</span></a></li>
+    </ul>
+  </aside>
+
+  <!-- 主要內容 -->
+  <main>
+    <header>
+      <h1>Travel Tools 系統技術規格書</h1>
+      <div class="meta-tag"><i class="fa fa-code-fork"></i> v2.0 - 行李打包與離線憑證升級版</div>
+    </header>
+
+    <!-- 系統概述 -->
+    <section id="overview">
+      <h2><i class="fa fa-info-circle"></i> 系統概述</h2>
+      <p>
+        <strong>Travel Tools (旅遊工具箱)</strong> 是一款專為自助旅行者設計的單頁應用程式（Single Page Application, SPA）。
+        本系統整合了匯率換算、時區時鐘、記帳、翻譯、待辦清單、多行程管理及離線憑證夾等必備工具。
+      </p>
+      <p>
+        為了解決海外旅行時常遇到的「高流量漫遊限制」或「在機場與地下交通缺乏網路」等痛點，本系統採用 <strong>100% 離線可用</strong> 的設計哲學。
+        所有行程、財務、照片與備忘錄數據均僅存儲於用戶端的瀏覽器本地中，保障隱私與離線可用性。
+      </p>
+    </section>
+
+    <!-- 技術架構 -->
+    <section id="architecture">
+      <h2><i class="fa fa-sitemap"></i> 技術架構</h2>
+      <p>系統採用輕量級的無伺服器（Serverless）純前端架構，無須資料庫或後端伺服器，直接透過 CDN 引入成熟的庫：</p>
+      <table>
+        <thead>
+          <tr>
+            <th>元件</th>
+            <th>技術 / 來源</th>
+            <th>功能描述</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>UI 基礎</strong></td>
+            <td>W3.CSS (CDN) / Vanilla CSS3</td>
+            <td>輕量響應式框架，配合 CSS 自訂屬性（Variables）支援黑暗模式（Dark Mode）。</td>
+          </tr>
+          <tr>
+            <td><strong>核心框架</strong></td>
+            <td>Vue.js v3 (CDN Global)</td>
+            <td>資料驅動 UI，使用 Options API 管理反應式狀態。</td>
+          </tr>
+          <tr>
+            <td><strong>拖曳元件</strong></td>
+            <td>SortableJS (CDN)</td>
+            <td>用於待辦清單 (Todo) 行李品項的無縫觸控與滑鼠拖曳排序。</td>
+          </tr>
+          <tr>
+            <td><strong>照片編輯器</strong></td>
+            <td>Cropper.js v1.6.2 (CDN)</td>
+            <td>支援拍照/上傳後的「自由裁切」與「旋轉擺正」，極大化節省儲存空間。</td>
+          </tr>
+          <tr>
+            <td><strong>資料快取</strong></td>
+            <td>Service Worker (sw.js)</td>
+            <td>實作 PWA (Progressive Web App) 快取策略，快取 HTML/CSS/JS 以及 CDN 靜態資源。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 功能模組規格 -->
+    <section id="modules">
+      <h2><i class="fa fa-cubes"></i> 功能模組規格</h2>
+
+      <h3>1. 計算器與換算器</h3>
+      <p>
+        整合四則運算、開根號 (<code>n√x</code>)、次方 (<code>x^n</code>) 及百分比。
+        <strong>幣值兌換</strong>模組使用 <code>ExchangeRate-API</code> 進行即時匯率轉換，並在載入成功後將匯率存入 <code>localStorage</code> 作為離線降級快取。
+        貨幣選擇具備記憶功能，會記住使用者最後一次選擇的原始與目標幣別。
+      </p>
+
+      <h3>2. 世界時鐘與時區換算</h3>
+      <p>
+        支援動態計算兩地時差。
+        下方設有 **8 大熱門城市世界時鐘網格**，系統會以 Taipei 時間作為基準（不依賴系統本地時間以防止時差計算出錯），每秒計算一次時間，並配合經緯度動態計算日出 (☀️) 與日落 (🌙) 狀態。
+      </p>
+
+      <h3>3. 待辦備忘 (行李清單)</h3>
+      <p>
+        支援 Shift-Range 批量勾選與 Ctrl 點選。待辦項目支援長按/拖曳自訂排序。
+        一鍵導入 **🎒 行李打包範本** 邏輯會將 8 項核心旅行物品（如護照、外幣、插頭等）以「追加（不覆蓋現有品項）」的方式推入 Vue `todos` 狀態中並自動存檔。
+      </p>
+
+      <h3>4. 旅遊記帳與甜甜圈圖表</h3>
+      <p>
+        支援記錄消費備註、金額及類別。外幣消費會依當前匯率自動換算折合為台幣。
+        在總額下方使用 <strong>HTML5 原生 Canvas</strong> 繪製 Donut Chart，會動態統計「餐飲、購物、交通、住宿、門票、紀念品、其他」等類別並依金額由高到低自動著色與排序。
+        支援在列表中點選「鉛筆」圖示彈出編輯視窗，修改後即時重繪圖表。
+      </p>
+
+      <h3>5. 離線重要憑證相簿 (Travel Wallet)</h3>
+      <p>
+        特設折疊抽屜式卡片 UI，點選標題可展開/收合。限制最大照片上傳上限為 4 張。
+        選取圖片時（可直接用「相機拍攝」或「檔案選擇器」讀取 Google Drive 檔案），會觸發 **Cropper 編輯視窗**，在毛玻璃彈窗中使用者可自由拖曳裁切或左右轉 90° 擺正圖片。
+        確定後，程式會先進行裁切，隨後利用 Canvas 將圖片等比縮減至最大邊 1000px，並以 <code>image/jpeg</code> 0.7 品質壓縮，將單張 Base64 體積壓在 100KB 左右以防止 LocalStorage 空間不足。
+      </p>
+
+      <h3>6. Gemini AI 雙通道翻譯與常用語</h3>
+      <p>
+        支援 API Key 設定（具備隱私遮罩），密鑰直接保存在本地，以 Gemini 2.0 API 驅動翻譯。
+        若無設定金鑰，系統會無縫 fallback 到免費翻譯 API，以保障使用者在戶外的翻譯通暢。
+        「我的常用語」區塊可讓使用者新增高頻會話並保存，並整合了 Web Speech API 語音合成（TTS）點擊即可發音。
+      </p>
+    </section>
+
+    <!-- 本地儲存結構 -->
+    <section id="storage">
+      <h2><i class="fa fa-database"></i> 本地儲存結構</h2>
+      <p>
+        整個 App 為了支援多行程，採用了一個名為 <code>Version 2.0</code> 的資料結構。
+        在 LocalStorage 中，行程主體以 <code>travel_trips</code> 為 Key 進行儲存：
+      </p>
+      
+      <pre><code>{
+  <span class="json-key">"version"</span>: <span class="json-string">"2.0"</span>,
+  <span class="json-key">"activeTripId"</span>: <span class="json-string">"trip_1780400000"000</span>,
+  <span class="json-key">"trips"</span>: [
+    {
+      <span class="json-key">"id"</span>: <span class="json-string">"trip_1780400000"</span>,
+      <span class="json-key">"name"</span>: <span class="json-string">"東京賞櫻之旅 🌸"</span>,
+      <span class="json-key">"departureDate"</span>: <span class="json-string">"2026-04-01T08:00"</span>,
+      <span class="json-key">"itineraryText"</span>: <span class="json-string">"&lt;div&gt;Day 1: 抵達新宿...&lt;/div&gt;"</span>,
+      <span class="json-key">"todos"</span>: [
+        { <span class="json-key">"id"</span>: <span class="json-string">"todo_1"</span>, <span class="json-key">"text"</span>: <span class="json-string">"護照"</span>, <span class="json-key">"important"</span>: <span class="json-value">true</span>, <span class="json-key">"completed"</span>: <span class="json-value">false</span> }
+      ],
+      <span class="json-key">"expenses"</span>: [
+        { <span class="json-key">"remark"</span>: <span class="json-string">"拉麵"</span>, <span class="json-key">"category"</span>: <span class="json-string">"餐飲"</span>, <span class="json-key">"amount"</span>: <span class="json-value">1200</span>, <span class="json-key">"currency"</span>: <span class="json-string">"JPY"</span> }
+      ],
+      <span class="json-key">"walletPhotos"</span>: [
+        { <span class="json-key">"id"</span>: <span class="json-string">"photo_1"</span>, <span class="json-key">"name"</span>: <span class="json-string">"登機證"</span>, <span class="json-key">"base64"</span>: <span class="json-string">"data:image/jpeg;base64,/9j/4AAQSk..."</span> }
+      ]
+    }
+  ]
+}</code></pre>
+      <div class="note-box">
+        <strong>⚠️ 注意事項</strong>
+        由於 <code>walletPhotos</code> 採用 Base64 格式嵌入行程陣列中，當用戶執行「匯出備份」時，所有照片會隨同 JSON 自動打包下載；匯入時也會一同載入。請提醒使用者避免匯入非經前端壓縮的超大 JSON 檔案。
+      </div>
+    </section>
+
+    <!-- PWA 與離線快取 -->
+    <section id="pwa">
+      <h2><i class="fa fa-wifi"></i> PWA 與離線快取</h2>
+      <p>
+        透過 <code>manifest.json</code> 將網頁封裝為可安裝之 Progressive Web App (PWA)。
+        核心快取策略定義在 <code>sw.js</code> 中：
+      </p>
+      <ul>
+        <li><strong>ASSETS_TO_CACHE</strong>：預先快取 <code>index.html</code>、<code>manifest.json</code> 之外，亦包含 Vue、SortableJS 以及 CropperJS 的外部 CDN 樣式與腳本。</li>
+        <li><strong>動態 CDN 快取 (Cache-First)</strong>：凡是來自 <code>cdnjs.cloudflare.com</code>、<code>unpkg.com</code>、<code>jsdelivr.net</code> 等 CDN 的資源要求，一律優先使用快取，無快取時才連網下載並動態寫入快取，以確保 100% 離線可用。</li>
+        <li><strong>匯率 API 快取 (Network-First, Fallback-to-Cache)</strong>：匯率請求優先使用網路以獲取最新報價，若處於離線狀態則自動 fallback 讀取本地上一次儲存的匯率快取。</li>
+      </ul>
+    </section>
+
+    <!-- 維護與擴充指南 -->
+    <section id="guide">
+      <h2><i class="fa fa-wrench"></i> 維護與擴充指南</h2>
+      
+      <h3>本地開發</h3>
+      <p>由於 Service Worker 安全限制，無法透過雙擊 HTML 運行。請在專案目錄下啟動輕量伺服器：</p>
+      <pre><code>python -m http.server 8000</code></pre>
+      <p>隨後即可在瀏覽器中開啟 <code>http://localhost:8000/index.html</code> 進行測試。</p>
+
+      <h3>版本升級</h3>
+      <p>
+        當您修改了 <code>index.html</code> 或專案資源時，必須手動更新 <code>sw.js</code> 中的 <code>CACHE_NAME</code> 版本號（例如從 <code>v27</code> 升級至 <code>v28</code>）。
+        這樣使用者瀏覽器在連網時，Service Worker 才會自動下載最新檔案、觸發啟用事件並清空舊快取，避免使用者因快取鎖死而停留在舊版畫面。
+      </p>
+    </section>
+  </main>
+
+  <script>
+    // 側邊欄滾動監聽 (ScrollSpy)
+    const links = document.querySelectorAll('.nav-links a');
+    const sections = document.querySelectorAll('section');
+
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.clientHeight;
+        if (pageYOffset >= (sectionTop - 150)) {
+          current = section.getAttribute('id');
+        }
+      });
+
+      links.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === `#${current}`) {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
