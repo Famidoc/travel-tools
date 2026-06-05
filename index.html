@@ -2829,7 +2829,7 @@
     <div v-if="activeTab === 'data'" class="data-management">
         <h4 class="w3-center" style="font-weight: bold;">【 資料管理 】</h4>
         <div style="text-align: center; font-size: 11px; color: var(--text-secondary); margin-bottom: 15px; opacity: 0.8;">
-          應用程式版本: v2.0.33
+          應用程式版本: v2.0.34
         </div>
         <p style="text-align: left;">
           您可以將目前的「行程資料」與「待辦備忘」匯出成一個 JSON 檔案。
@@ -4612,8 +4612,8 @@ ${this.sourceText}
                 }).then(() => {
                   console.log('Share successful');
                 }).catch(err => {
-                  // 如果不是使用者手動取消，則複製到剪貼簿作為最後防線
-                  if (err.name !== 'AbortError' && err.name !== 'NotAllowedError') {
+                  // 如果是使用者手動取消(AbortError)，則不做任何事
+                  if (err.name !== 'AbortError') {
                     console.warn('Share failed, falling back to clipboard:', err);
                     this.copyToClipboardFallback(jsonString);
                   }
