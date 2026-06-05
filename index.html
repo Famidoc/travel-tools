@@ -4587,33 +4587,45 @@ ${this.sourceText}
           };
           const jsonString = JSON.stringify(dataToExport, null, 2); // Pretty print JSON
 
-          // 1. 優先嘗試 Web Share API（專門修復手機端 PWA/WebView 下載被阻擋的問題）
-          try {
-            const file = new File([jsonString], 'travel-tools-data.json', { type: 'application/json' });
-            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-              navigator.share({
-                files: [file],
-                title: 'Travel Tools 備份資料',
-                text: '這是我的 Travel Tools 旅遊工具箱備份資料。'
-              }).then(() => {
-                console.log('Share successful');
-              }).catch(err => {
-                // 如果是使用者手動取消(AbortError/NotAllowedError)，則不做任何事
-                if (err.name !== 'AbortError' && err.name !== 'NotAllowedError') {
-                  console.warn('Share failed, falling back to download:', err);
-                  this.fallbackDownload(jsonString);
-                } else {
-                  console.log('Share aborted by user');
-                }
-              });
+          // 偵測是否為行動裝置
+          const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+          // 1. 行動裝置優先嘗試 Web Share API（解決手機 PWA/WebView 被阻擋下載的問題）
+          if (isMobile) {
+            try {
+              const file = new File([jsonString], 'travel-tools-data.json', { type: 'application/json' });
+              if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                navigator.share({
+                  files: [file],
+                  title: 'Travel Tools 備份資料',
+                  text: '這是我的 Travel Tools 旅遊工具箱備份資料。'
+                }).then(() => {
+                  console.log('Share successful');
+                }).catch(err => {
+                  // 如果不是使用者取消，則複製到剪貼簿作為降級（因為手機端異步下載必定被阻擋）
+                  if (err.name !== 'AbortError' && err.name !== 'NotAllowedError') {
+                    console.warn('Share failed, falling back to clipboard:', err);
+                    this.copyToClipboardFallback(jsonString);
+                  }
+                });
+                return;
+              }
+            } catch (shareErr) {
+              console.warn('Web Share failed on mobile, trying clipboard:', shareErr);
+              this.copyToClipboardFallback(jsonString);
               return;
             }
-          } catch (shareErr) {
-            console.warn('Web Share detection error, using standard download:', shareErr);
           }
 
-          // 2. 電腦版或不支援 Web Share 時，使用標準 Blob 下載
+          // 2. 電腦端直接「同步」執行標準下載，保留使用者手勢 (User Gesture)
           this.fallbackDownload(jsonString);
+        },
+        copyToClipboardFallback(jsonString) {
+          navigator.clipboard.writeText(jsonString).then(() => {
+            alert('由於您的設備限制了檔案下載，已將備份 JSON 資料複製到您的剪貼簿！\n\n您可以將其貼上到手機備忘錄中保存。');
+          }).catch(err => {
+            alert('匯出失敗，您的設備不支援下載與複製。');
+          });
         },
         fallbackDownload(jsonString) {
           try {
@@ -4630,13 +4642,8 @@ ${this.sourceText}
               URL.revokeObjectURL(url);
             }, 100);
           } catch (e) {
-            console.error('Download fallback failed:', e);
-            // 3. 極致備援：複製到剪貼簿
-            navigator.clipboard.writeText(jsonString).then(() => {
-              alert('由於瀏覽器限制下載，已將備份 JSON 資料複製到您的剪貼簿！\n\n您可以將其貼上到手機備忘錄中保存。');
-            }).catch(err => {
-              alert('匯出失敗，您的設備不支援下載。');
-            });
+            console.error('Download failed:', e);
+            this.copyToClipboardFallback(jsonString);
           }
         },
         triggerImport() {
